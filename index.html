@@ -13,21 +13,21 @@
     <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background-color: #0d1117;
-            color: #f0f6fc;
+            background-color: #0b0f19;
+            color: #ffffff;
             min-height: 100vh;
         }
         .glass-card {
-            background: rgba(22, 27, 34, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 1rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5);
             transition: transform 0.2s ease, border-color 0.2s ease;
         }
         .glass-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(99, 102, 241, 0.4);
+            border-color: rgba(99, 102, 241, 0.6);
         }
         .btn-primary-custom {
             background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
@@ -39,14 +39,20 @@
             background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
             color: white;
         }
+        .text-bright {
+            color: #ffffff !important;
+        }
+        .text-muted-bright {
+            color: #cbd5e1 !important;
+        }
     </style>
 </head>
 <body>
 
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary opacity-90 px-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4 text-indigo" href="index.html">
+            <a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
                 <i class="fa-solid fa-graduation-cap me-2 text-indigo"></i> StudyHub
             </a>
             <div class="d-flex">
@@ -61,8 +67,8 @@
     <main class="container py-5">
         <div class="row mb-4">
             <div class="col-12">
-                <h1 class="fw-bold display-6">Study Dashboard</h1>
-                <p class="text-muted">Explore your decks, master your topics, and ace your exams.</p>
+                <h1 class="fw-bold display-6 text-bright">Study Dashboard</h1>
+                <p class="text-muted-bright">Explore your decks, master your topics, and ace your exams.</p>
             </div>
         </div>
 
@@ -71,7 +77,7 @@
             <div class="spinner-border text-indigo" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="text-muted mt-3">Loading your study sets from the server...</p>
+            <p class="text-muted-bright mt-3">Loading your study sets from the server...</p>
         </div>
 
         <div id="error-alert" class="alert alert-danger d-none" role="alert">
@@ -84,35 +90,57 @@
         </div>
     </main>
 
-    <!-- JavaScript to Fetch and Render Study Sets -->
+    <!-- JavaScript to Fetch, Render, Edit, and Delete Study Sets -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const setsGrid = document.getElementById('sets-grid');
             const loadingSpinner = document.getElementById('loading-spinner');
             const errorAlert = document.getElementById('error-alert');
 
-            fetch('backend/get_sets.php')
-                .then(response => response.json())
-                .then(data => {
-                    loadingSpinner.style.display = 'none';
-                    if (data.success) {
-                        displaySets(data.sets); // Pass data.sets here!
-                    } else {
+            function loadSets() {
+                fetch('backend/get_sets.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingSpinner.style.display = 'none';
+                        if (data.success) {
+                            displaySets(data.sets);
+                        } else {
+                            errorAlert.classList.remove('d-none');
+                            errorAlert.textContent = data.error || "Failed to load study sets.";
+                        }
+                    })
+                    .catch(err => {
+                        loadingSpinner.style.display = 'none';
                         errorAlert.classList.remove('d-none');
-                        errorAlert.textContent = data.error || "Failed to load study sets.";
-                    }
-                })
-                .catch(err => {
-                    loadingSpinner.style.display = 'none';
-                    errorAlert.classList.remove('d-none');
-                    console.error('Fetch error:', err);
-                });
+                        console.error('Fetch error:', err);
+                    });
+            }
+
+            loadSets();
+
+            window.deleteSet = function(setId) {
+                if (confirm('Are you sure you want to delete this study set?')) {
+                    fetch(`backend/delete_set.php?id=${setId}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                loadSets();
+                            } else {
+                                alert('Error deleting set: ' + (data.error || 'Unknown error'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Delete error:', err);
+                            alert('Failed to delete study set.');
+                        });
+                }
+            };
 
             function displaySets(sets) {
                 if (!sets || sets.length === 0) {
                     setsGrid.innerHTML = `
                         <div class="col-12 text-center py-5">
-                            <p class="text-muted fs-5">No study sets found yet. Create your first one!</p>
+                            <p class="text-muted-bright fs-5">No study sets found yet. Create your first one!</p>
                         </div>
                     `;
                     return;
@@ -120,21 +148,27 @@
 
                 setsGrid.innerHTML = sets.map(set => `
                     <div class="col-md-4">
-                        <div class="glass-card p-4 h-d-flex flex-column justify-content-between h-100">
+                        <div class="glass-card p-4 d-flex flex-column justify-content-between h-100">
                             <div>
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge bg-secondary bg-opacity-25 text-indigo px-3 py-2 rounded-pill">
+                                    <span class="badge bg-indigo bg-opacity-25 text-indigo px-3 py-2 rounded-pill fw-semibold" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">
                                         ${set.term_count || 0} terms
                                     </span>
-                                    <small class="text-muted">${new Date(set.created_at).toLocaleDateString()}</small>
+                                    <small class="text-muted-bright">${new Date(set.created_at).toLocaleDateString()}</small>
                                 </div>
-                                <h3 class="h5 fw-bold text-white mb-2">${escapeHtml(set.title)}</h3>
-                                <p class="text-muted small mb-4">${escapeHtml(set.description || 'No description provided.')}</p>
+                                <h3 class="h5 fw-bold text-bright mb-2">${escapeHtml(set.title)}</h3>
+                                <p class="text-muted-bright small mb-4">${escapeHtml(set.description || 'No description provided.')}</p>
                             </div>
-                            <div>
-                                <a href="study.html?id=${set.id}" class="btn btn-outline-light btn-sm w-100 rounded-pill py-2 fw-semibold">
-                                    <i class="fa-solid fa-bolt me-2"></i> Study Deck
+                            <div class="d-flex gap-2">
+                                <a href="study.html?id=${set.id}" class="btn btn-primary-custom btn-sm flex-grow-1 rounded-pill py-2 fw-semibold">
+                                    <i class="fa-solid fa-bolt me-1"></i> Study
                                 </a>
+                                <a href="edit-set.html?id=${set.id}" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2" title="Edit Set">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <button onclick="deleteSet(${set.id})" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2" title="Delete Set">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
