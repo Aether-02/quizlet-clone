@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Study Set - Quizlet Clone</title>
+    <!-- Google Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- External Parsers for DOCX and PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    
+    <style>
+        * { transition: all 0.5s ease !important; }
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --accent-glow: #6366f1;
+            --text-main: #f3f4f6;
+            --text-label: #f3f4f6;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .form-label {
+            color: var(--text-label) !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .form-control, .form-control:focus {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            border-radius: 0.75rem;
+        }
+        .form-control:focus {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        input[type="file"]::file-selector-button:hover { opacity: 0.9; }
+        input[type="file"] { color: #f3f4f6; padding: 0.4rem; }
+        .btn-custom-accent {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+        }
+        .btn-custom-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+        .term-card {
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0 text-light"><i class="fa-solid fa-layer-group text-indigo me-2"></i> Create a New Study Set</h2>
+            <a href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">Back to Dashboard</a>
+        </div>
+
+        <form id="createSetForm">
+            <div class="glass-card p-4 mb-4">
+                <div class="mb-3">
+                    <label for="setTitle" class="form-label">TITLE</label>
+                    <input type="text" class="form-control form-control-lg" id="setTitle" placeholder="e.g., Information Technology Concepts" required>
+                </div>
+                <div class="mb-3">
+                    <label for="setDescription" class="form-label">DESCRIPTION (OPTIONAL)</label>
+                    <textarea class="form-control" id="setDescription" rows="2" placeholder="Add a short description for your study deck..."></textarea>
+                </div>
+                <div class="border-top border-secondary pt-3 mt-3">
+                    <label for="importFile" class="form-label mb-2 d-flex align-items-center gap-2" style="color: #818cf8;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Auto-Generate up to 200+ Flashcards from File (.txt, .csv, .docx, .pdf)
+                    </label>
+                    <input type="file" class="form-control form-control-sm" id="importFile" accept=".txt,.csv,.docx,.pdf">
+                    <div class="form-text small mt-1" style="color: #cbd5e1;">Format lines as: <code>Definition - Term</code></div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <h4 class="fw-semibold mb-0 text-light">Flashcards (<span id="cardCounterBadge">2</span>)</h4>
+                <button type="button" id="addCardBtn" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-plus me-1"></i> Add Card
+                </button>
+            </div>
+
+            <div id="cardsContainer" class="d-flex flex-column gap-3 mb-4"></div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-custom-accent btn-lg px-5 py-3">
+                    <i class="fa-solid fa-check me-2"></i> Create Study Set
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const cardsContainer = document.getElementById('cardsContainer');
+        const addCardBtn = document.getElementById('addCardBtn');
+        const createSetForm = document.getElementById('createSetForm');
+        const importFileInput = document.getElementById('importFile');
+        const cardCounterBadge = document.getElementById('cardCounterBadge');
+
+        function updateCardNumbers() {
+            const cards = cardsContainer.querySelectorAll('.term-card');
+            cardCounterBadge.textContent = cards.length;
+            cards.forEach((card, index) => {
+                card.querySelector('.card-number').textContent = `#${index + 1}`;
+            });
+        }
+
+        // Definition first, Term second
+        function addNewCardRow(defText = '', termText = '') {
+            const cardIndex = cardsContainer.children.length + 1;
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'glass-card p-4 term-card';
+            cardDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 border-secondary">
+                    <span class="fw-bold text-light card-number">#${cardIndex}</span>
+                    <button type="button" class="btn btn-link text-danger p-0 delete-card-btn" title="Delete Card">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">DEFINITION</label>
+                        <textarea class="form-control def-input" rows="2" placeholder="Enter definition" required>${defText}</textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">TERM</label>
+                        <textarea class="form-control term-input" rows="2" placeholder="Enter term" required>${termText}</textarea>
+                    </div>
+                </div>
+            `;
+
+            cardDiv.querySelector('.delete-card-btn').addEventListener('click', () => {
+                if (cardsContainer.children.length > 2) {
+                    cardDiv.remove();
+                    updateCardNumbers();
+                } else {
+                    alert('A study set must have at least 2 cards.');
+                }
+            });
+
+            cardsContainer.appendChild(cardDiv);
+            updateCardNumbers();
+        }
+
+        // Fallback parser: Definition first, Term second
+        function fallbackParseText(textContent) {
+            const lines = textContent.split(/\r?\n/);
+            let parsedPairs = [];
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                let separator = line.includes(' - ') ? ' - ' : (line.includes(': ') ? ': ' : (line.includes(',') ? ',' : null));
+                if (separator) {
+                    const parts = line.split(separator, 2);
+                    if (parts.length === 2) {
+                        const definition = parts[0].trim();
+                        const term = parts[1].trim();
+                        if (definition && term) {
+                            parsedPairs.push({ definition, term });
+                        }
+                    }
+                }
+            });
+            return parsedPairs;
+        }
+
+        importFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileName = file.name;
+            const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+            const defaultTitle = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+            document.getElementById('setTitle').value = defaultTitle.replace(/[-_]/g, ' ');
+
+            let extractedText = '';
+
+            try {
+                if (fileExtension === '.txt' || fileExtension === '.csv') {
+                    extractedText = await file.text();
+                } else if (fileExtension === '.docx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                    extractedText = result.value;
+                } else if (fileExtension === '.pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const typedarray = new Uint8Array(arrayBuffer);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
+                    }
+                }
+
+                alert('Analyzing PDF / document and generating flashcards...');
+
+                const response = await fetch('backend/generate_ai_set.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: extractedText })
+                });
+
+                const result = await response.json();
+                let finalTerms = (result.success && result.terms && result.terms.length > 0) ? result.terms : fallbackParseText(extractedText);
+
+                if (finalTerms.length > 0) {
+                    cardsContainer.innerHTML = '';
+                    finalTerms.forEach(pair => {
+                        addNewCardRow(pair.definition, pair.term);
+                    });
+                    alert(`Successfully generated ${finalTerms.length} flashcards from your PDF!`);
+                } else {
+                    alert('Could not automatically parse cards from this document. Please ensure lines follow "Definition - Term" format.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred while processing the file.');
+            }
+        });
+
+        addNewCardRow();
+        addNewCardRow();
+        addCardBtn.addEventListener('click', () => addNewCardRow());
+
+        createSetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('setTitle').value.trim();
+            const description = document.getElementById('setDescription').value.trim();
+            const cardElements = cardsContainer.querySelectorAll('.term-card');
+            
+            const terms = [];
+            cardElements.forEach(card => {
+                const term = card.querySelector('.term-input').value.trim();
+                const definition = card.querySelector('.def-input').value.trim();
+                if (term && definition) {
+                    terms.push({ term, definition });
+                }
+            });
+
+            if (terms.length < 2) {
+                alert('Please fill out at least 2 complete flashcards.');
+                return;
+            }
+
+            const response = await fetch('backend/create_set.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: 1, title, description, visibility: 'public', terms })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Study set created successfully!');
+                window.location.href = 'index.html';
+            } else {
+                alert('Error: ' + result.error);
+            }
+        });
+    </script>
+</body>
+</html>

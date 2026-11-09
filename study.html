@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Player - Quizlet Clone</title>
+    <!-- Google Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { transition: all 0.5s ease !important; }
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --accent-glow: #6366f1;
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .text-muted { color: var(--text-muted) !important; }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 700px;
+            height: 380px;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1) !important;
+            border-radius: 1.25rem;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background: rgba(23, 32, 51, 0.9);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        .btn-custom-accent {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+        }
+        .btn-custom-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4 d-flex flex-column flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+            <h4 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Loading Set...</h4>
+            <div class="d-flex gap-2">
+                <a id="testModeBtn" href="#" class="btn btn-custom-accent btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-file-pen me-1"></i> Test
+                </a>
+                <button id="shuffleBtn" class="btn btn-outline-light btn-sm rounded-pill px-3" title="Shuffle Cards">
+                    <i class="fa-solid fa-shuffle me-1"></i> Shuffle
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center my-auto">
+            <div class="flashcard-container mb-4" id="cardContainer">
+                <div class="flashcard" id="flashcardElement">
+                    <!-- Front Face (Definition) -->
+                    <div class="card-face card-front">
+                        <div class="d-flex justify-content-between text-muted small fw-semibold">
+                            <span>DEFINITION</span>
+                            <span id="cardProgress">1 / 1</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center text-center flex-grow-1">
+                            <h3 id="cardDefText" class="fw-semibold text-light fs-4">Loading...</h3>
+                        </div>
+                        <div class="text-center text-muted small">Click or press Spacebar to flip for Term</div>
+                    </div>
+                    <!-- Back Face (Term) -->
+                    <div class="card-face card-back">
+                        <div class="d-flex justify-content-between small fw-semibold" style="color: #818cf8;">
+                            <span>TERM</span>
+                            <span id="cardProgressBack">1 / 1</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center text-center flex-grow-1">
+                            <h2 id="cardTermText" class="fw-bold text-light display-6">Loading...</h2>
+                        </div>
+                        <div class="text-center text-muted small">Click or press Spacebar to flip</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+                <button id="prevBtn" class="btn btn-glass btn-outline-light rounded-circle p-3" style="width: 50px; height: 50px;" title="Previous Card">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="counterText" class="fw-bold text-light fs-5">1 / 1</span>
+                <button id="nextBtn" class="btn btn-glass btn-outline-light rounded-circle p-3" style="width: 50px; height: 50px;" title="Next Card">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let terms = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const setId = urlParams.get('id');
+
+        const setTitleEl = document.getElementById('setTitle');
+        const testModeBtn = document.getElementById('testModeBtn');
+        const cardContainer = document.getElementById('cardContainer');
+        const flashcardElement = document.getElementById('flashcardElement');
+        const cardTermText = document.getElementById('cardTermText');
+        const cardDefText = document.getElementById('cardDefText');
+        const cardProgress = document.getElementById('cardProgress');
+        const cardProgressBack = document.getElementById('cardProgressBack');
+        const counterText = document.getElementById('counterText');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+
+        async function loadStudySet() {
+            if (!setId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            testModeBtn.href = `test.html?id=${setId}`;
+
+            try {
+                const response = await fetch(`backend/get_sets.php?id=${setId}`);
+                const data = await response.json();
+                setTitleEl.textContent = data.title;
+                terms = data.terms || [];
+                renderCard();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderCard() {
+            if (terms.length === 0) return;
+            const currentItem = terms[currentIndex];
+            cardDefText.textContent = currentItem.definition;
+            cardTermText.textContent = currentItem.term;
+
+            const progressStr = `${currentIndex + 1} / ${terms.length}`;
+            cardProgress.textContent = progressStr;
+            cardProgressBack.textContent = progressStr;
+            counterText.textContent = progressStr;
+
+            isFlipped = false;
+            flashcardElement.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) flashcardElement.classList.add('flipped');
+            else flashcardElement.classList.remove('flipped');
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex < terms.length - 1) ? currentIndex + 1 : 0;
+            renderCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : terms.length - 1;
+            renderCard();
+        }
+
+        function shuffleCards() {
+            terms.sort(() => 0.5 - Math.random());
+            currentIndex = 0;
+            renderCard();
+        }
+
+        cardContainer.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextCard(); });
+        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevCard(); });
+        shuffleBtn.addEventListener('click', shuffleCards);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+            else if (e.code === 'ArrowRight') nextCard();
+            else if (e.code === 'ArrowLeft') prevCard();
+        });
+
+        loadStudySet();
+    </script>
+</body>
+</html>

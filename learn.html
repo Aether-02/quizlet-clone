@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Mode - Quizlet Clone</title>
+    <!-- Google Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Global Smooth Animation */
+        * {
+            transition: all 0.3s ease !important;
+        }
+
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --accent-glow: #6366f1;
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Glassmorphism Container */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .option-btn {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: left;
+            font-weight: 500;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-glow);
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: #22c55e !important;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: #ef4444 !important;
+        }
+
+        .btn-custom-accent {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+        }
+
+        .btn-custom-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4 d-flex flex-column flex-grow-1" style="max-width: 800px;">
+        <!-- Top Navigation Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a id="backLink" href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Exit Learn
+            </a>
+            <h4 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Learn Mode</h4>
+            <span id="progressBadge" class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3 py-2 rounded-pill">Adaptive Spaced Repetition</span>
+        </div>
+
+        <!-- Completion Card (Hidden Initially) -->
+        <div id="completionCard" class="glass-card p-5 text-center my-auto d-none mx-auto" style="width: 100%;">
+            <i class="fa-solid fa-circle-check fa-3x mb-3 text-success"></i>
+            <h2 class="fw-bold text-light mb-2">Set Mastered!</h2>
+            <p class="text-muted mb-4">You have successfully practiced and mastered all terms in this study set.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <button onclick="window.location.reload()" class="btn btn-outline-light px-4 py-2 rounded-pill">Practice Again</button>
+                <a id="backToStudyBtn" href="#" class="btn btn-custom-accent px-4 py-2">Back to Flashcards</a>
+            </div>
+        </div>
+
+        <!-- Question Area Container -->
+        <div id="learnCardContainer" class="glass-card p-5 my-auto">
+            <div class="d-flex justify-content-between text-muted small fw-semibold mb-3">
+                <span id="queueStatus">Remaining in queue: 0</span>
+                <span id="masteryStatus">Mastered: 0 / 0</span>
+            </div>
+            <h3 id="questionPrompt" class="fw-bold text-light mb-4 fs-4">Loading question...</h3>
+            
+            <div id="optionsContainer" class="d-flex flex-column gap-3">
+                <!-- Multiple choice option buttons injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Learn Mode Script Logic -->
+    <script>
+        let allTerms = [];
+        let learningQueue = [];
+        let masteredIds = new Set();
+        let currentItem = null;
+        let isProcessing = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const setId = urlParams.get('id');
+
+        const setTitleEl = document.getElementById('setTitle');
+        const learnCardContainer = document.getElementById('learnCardContainer');
+        const completionCard = document.getElementById('completionCard');
+        const questionPrompt = document.getElementById('questionPrompt');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const queueStatus = document.getElementById('queueStatus');
+        const masteryStatus = document.getElementById('masteryStatus');
+        const backToStudyBtn = document.getElementById('backToStudyBtn');
+        const backLink = document.getElementById('backLink');
+
+        async function loadLearnData() {
+            if (!setId) {
+                alert('No study set specified!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            backToStudyBtn.href = `study.html?id=${setId}`;
+            backLink.href = `study.html?id=${setId}`;
+
+            try {
+                const response = await fetch(`backend/get_sets.php?id=${setId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                setTitleEl.textContent = `Learn: ${data.title}`;
+                allTerms = data.terms || [];
+
+                if (allTerms.length < 2) {
+                    alert('You need at least 2 terms in a set to use Learn mode.');
+                    window.location.href = `study.html?id=${setId}`;
+                    return;
+                }
+
+                // Initialize queue with all terms
+                learningQueue = [...allTerms].sort(() => 0.5 - Math.random());
+                nextQuestion();
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load study set data.');
+            }
+        }
+
+        function nextQuestion() {
+            if (learningQueue.length === 0) {
+                learnCardContainer.classList.add('d-none');
+                completionCard.classList.remove('d-none');
+                return;
+            }
+
+            currentItem = learningQueue.shift();
+            isProcessing = false;
+
+            queueStatus.textContent = `Remaining in queue: ${learningQueue.length + 1}`;
+            masteryStatus.textContent = `Mastered: ${masteredIds.size} / ${allTerms.length}`;
+
+            questionPrompt.innerHTML = `What is the definition of: <span class="text-indigo" style="color: #818cf8;">"${escapeHtml(currentItem.term)}"</span>?`;
+
+            // Generate 3 wrong distractors + correct definition
+            const wrongOptions = allTerms
+                .filter(t => t.id !== currentItem.id)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3)
+                .map(t => t.definition);
+
+            const options = [...wrongOptions, currentItem.definition].sort(() => 0.5 - Math.random());
+
+            optionsContainer.innerHTML = '';
+            options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => handleAnswer(opt, btn));
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedOpt, btnElement) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.style.pointerEvents = 'none');
+
+            if (selectedOpt === currentItem.definition) {
+                btnElement.classList.add('correct');
+                masteredIds.add(currentItem.id);
+            } else {
+                btnElement.classList.add('incorrect');
+                // Highlight correct button
+                buttons.forEach(b => {
+                    if (b.textContent === currentItem.definition) {
+                        b.classList.add('correct');
+                    }
+                });
+                // Re-add to queue for spaced repetition review
+                learningQueue.push(currentItem);
+            }
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 1200);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        loadLearnData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Mode - Quizlet Clone</title>
+    <!-- Google Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Global Smooth Animation */
+        * {
+            transition: all 0.3s ease !important;
+        }
+
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --accent-glow: #6366f1;
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Glassmorphism Container */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Match Tile Card */
+        .match-tile {
+            cursor: pointer;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            user-select: none;
+        }
+
+        .match-tile:hover {
+            border-color: var(--accent-glow);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .match-tile.selected {
+            background: rgba(99, 102, 241, 0.3) !important;
+            border-color: var(--accent-glow) !important;
+            transform: scale(0.98);
+        }
+
+        .match-tile.matched {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.5);
+        }
+
+        .btn-custom-accent {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+        }
+
+        .btn-custom-accent:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4 d-flex flex-column flex-grow-1" style="max-width: 900px;">
+        <!-- Top Navigation Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a id="backLink" href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Exit Game
+            </a>
+            <h4 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Match Mode</h4>
+            <div class="glass-card px-3 py-1 d-flex align-items-center gap-2">
+                <i class="fa-regular fa-clock text-indigo" style="color: #818cf8;"></i>
+                <span id="timerDisplay" class="fw-bold fs-5 text-light">0.0s</span>
+            </div>
+        </div>
+
+        <!-- Victory Modal Card (Hidden Initially) -->
+        <div id="victoryCard" class="glass-card p-5 text-center my-auto d-none mx-auto" style="max-width: 500px; width: 100%;">
+            <i class="fa-solid fa-trophy fa-3x mb-3 text-warning"></i>
+            <h2 class="fw-bold text-light mb-2">Amazing Job!</h2>
+            <p class="text-muted mb-4">You matched all the pairs successfully.</p>
+            <h1 id="finalTimeDisplay" class="display-3 fw-bold text-light mb-4">0.0s</h1>
+            <div class="d-flex justify-content-center gap-3">
+                <button onclick="window.location.reload()" class="btn btn-outline-light px-4 py-2 rounded-pill">Play Again</button>
+                <a id="backToStudyBtn" href="#" class="btn btn-custom-accent px-4 py-2">Back to Flashcards</a>
+            </div>
+        </div>
+
+        <!-- Match Grid Container -->
+        <div id="matchGridContainer" class="row g-3 flex-grow-1 align-content-center">
+            <!-- Dynamically generated match cards will appear here -->
+        </div>
+    </div>
+
+    <!-- Match Game Logic -->
+    <script>
+        let rawTerms = [];
+        let gameCards = [];
+        let selectedCard = null;
+        let matchesFound = 0;
+        let totalPairs = 0;
+        let seconds = 0;
+        let timerInterval = null;
+        let gameStarted = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const setId = urlParams.get('id');
+
+        const setTitleEl = document.getElementById('setTitle');
+        const matchGridContainer = document.getElementById('matchGridContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const victoryCard = document.getElementById('victoryCard');
+        const finalTimeDisplay = document.getElementById('finalTimeDisplay');
+        const backToStudyBtn = document.getElementById('backToStudyBtn');
+        const backLink = document.getElementById('backLink');
+
+        async function loadMatchData() {
+            if (!setId) {
+                alert('No study set specified!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            backToStudyBtn.href = `study.html?id=${setId}`;
+            backLink.href = `study.html?id=${setId}`;
+
+            try {
+                const response = await fetch(`backend/get_sets.php?id=${setId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                setTitleEl.textContent = `Match: ${data.title}`;
+                rawTerms = data.terms || [];
+
+                if (rawTerms.length < 2) {
+                    alert('You need at least 2 terms in a set to play Match mode.');
+                    window.location.href = `study.html?id=${setId}`;
+                    return;
+                }
+
+                initGame();
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load study set data.');
+            }
+        }
+
+        function initGame() {
+            // Take up to 6 terms for a clean 12-card grid board
+            const selectedTerms = [...rawTerms].sort(() => 0.5 - Math.random()).slice(0, 6);
+            totalPairs = selectedTerms.length;
+            matchesFound = 0;
+
+            gameCards = [];
+            selectedTerms.forEach((item, index) => {
+                // Term card
+                gameCards.push({
+                    id: index,
+                    text: item.term,
+                    type: 'term'
+                });
+                // Definition card
+                gameCards.push({
+                    id: index,
+                    text: item.definition,
+                    type: 'definition'
+                });
+            });
+
+            // Shuffle all cards
+            gameCards.sort(() => 0.5 - Math.random());
+            renderBoard();
+        }
+
+        function renderBoard() {
+            matchGridContainer.innerHTML = '';
+            gameCards.forEach((card, idx) => {
+                const col = document.createElement('div');
+                col.className = 'col-6 col-md-4 col-lg-3';
+                col.innerHTML = `
+                    <div class="glass-card match-tile" data-index="${idx}" data-pair="${card.id}">
+                        <span>${escapeHtml(card.text)}</span>
+                    </div>
+                `;
+                matchGridContainer.appendChild(col);
+            });
+
+            // Add click listeners to tiles
+            document.querySelectorAll('.match-tile').forEach(tile => {
+                tile.addEventListener('click', () => handleTileClick(tile));
+            });
+        }
+
+        function startTimer() {
+            if (gameStarted) return;
+            gameStarted = true;
+            const startTime = Date.now();
+            timerInterval = setInterval(() => {
+                seconds = ((Date.now() - startTime) / 1000).toFixed(1);
+                timerDisplay.textContent = `${seconds}s`;
+            }, 100);
+        }
+
+        function handleTileClick(tile) {
+            if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+            startTimer();
+
+            if (!selectedCard) {
+                selectedCard = tile;
+                tile.classList.add('selected');
+            } else {
+                const firstPair = selectedCard.getAttribute('data-pair');
+                const secondPair = tile.getAttribute('data-pair');
+
+                if (firstPair === secondPair && selectedCard !== tile) {
+                    // Correct Match!
+                    selectedCard.classList.remove('selected');
+                    selectedCard.classList.add('matched');
+                    tile.classList.add('matched');
+                    selectedCard = null;
+                    matchesFound++;
+
+                    if (matchesFound === totalPairs) {
+                        clearInterval(timerInterval);
+                        finalTimeDisplay.textContent = `${seconds}s`;
+                        matchGridContainer.classList.add('d-none');
+                        victoryCard.classList.remove('d-none');
+                    }
+                } else {
+                    // Incorrect Match
+                    tile.classList.add('selected');
+                    setTimeout(() => {
+                        selectedCard.classList.remove('selected');
+                        tile.classList.remove('selected');
+                        selectedCard = null;
+                    }, 400);
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        loadMatchData();
+    </script>
+</body>
+</html>
