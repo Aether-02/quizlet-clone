@@ -4,7 +4,7 @@ $host = 'mysql-35efe400-createstudyset.g.aivencloud.com';
 $port = '13450';
 $db   = 'defaultdb';
 $user = 'avnadmin';
-$pass = 'YOUR_AIVEN_PASSWORD'; // Replace with your copied Aiven password
+$pass = getenv('DB_PASS') ?: 'YOUR_LOCAL_FALLBACK_PASSWORD';
 $cert = __DIR__ . '/ca.pem';
 
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
