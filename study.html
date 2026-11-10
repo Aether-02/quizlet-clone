@@ -46,7 +46,7 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 2.5rem;
-            background: rgba(22, 27, 34, 0.9);
+            background: rgba(22, 27, 34, 0.85);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 1rem;
@@ -77,6 +77,16 @@
             background: rgba(255, 255, 255, 0.2);
             color: #ffffff;
         }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -84,14 +94,20 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
+            <a class="navbar-brand fw-bold fs-6 text-white" href="index.html">
                 <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
             </a>
-            <h5 id="deck-title" class="text-bright m-0 text-truncate px-3" style="max-width: 500px;">Loading Deck...</h5>
-            <div class="d-flex gap-2">
+            <h5 id="deck-title" class="text-bright m-0 text-truncate px-3 text-center" style="max-width: 400px;">Loading Deck...</h5>
+            <div class="d-flex align-items-center gap-2">
+                <a id="test-btn" href="#" class="btn btn-primary-custom btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Test
+                </a>
                 <button onclick="shuffleCards()" class="btn btn-custom btn-sm rounded-pill px-3">
                     <i class="fa-solid fa-shuffle me-1"></i> Shuffle
                 </button>
+                <a href="settings.html" class="btn btn-custom btn-sm rounded-circle p-2" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
             </div>
         </div>
     </nav>
@@ -157,7 +173,9 @@
                 return;
             }
 
-            // FIXED: Now calling get_sets.php?id=X (plural endpoint)
+            // Set test button link
+            document.getElementById('test-btn').href = `test.html?id=${setId}`;
+
             fetch(`backend/get_sets.php?id=${setId}`)
                 .then(res => res.json())
                 .then(data => {
