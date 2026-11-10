@@ -13,14 +13,26 @@
     <link rel="stylesheet" href="CSS/transition.css">
     
     <style>
-        :root {
-            --bg-main: #fff5f2; /* White caramel background */
+        /* Default Theme: Peach & Caramel */
+        :root, body.theme-peach {
+            --bg-main: #fff5f2;
             --sidebar-bg: #ffebe6;
             --card-bg: #ffffff;
-            --text-main: #5c4033; /* Warm caramel text */
+            --text-main: #5c4033;
             --text-muted: #8c6d62;
-            --accent-peach: #ffb5a7; /* Baby peach pink */
+            --accent-color: #ffb5a7;
             --btn-gradient: linear-gradient(135deg, #ffb5a7 0%, #fcd5ce 100%);
+        }
+
+        /* Ocean Blue & Sand Theme */
+        body.theme-ocean {
+            --bg-main: #f0f4f8; /* Soft sand / warm light gray */
+            --sidebar-bg: #e2e8f0;
+            --card-bg: #ffffff;
+            --text-main: #1e3a8a; /* Deep ocean navy */
+            --text-muted: #64748b;
+            --accent-color: #0ea5e9; /* Ocean blue */
+            --btn-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
         }
 
         body {
@@ -29,19 +41,20 @@
             color: var(--text-main);
             min-height: 100vh;
             margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .navbar-custom {
             background-color: var(--sidebar-bg);
-            border-bottom: 1px solid rgba(216, 164, 127, 0.2);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             padding: 1rem 2rem;
         }
 
         .glass-card {
             background: var(--card-bg);
-            border: 1px solid rgba(216, 164, 127, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 1.25rem;
-            box-shadow: 0 8px 25px rgba(216, 164, 127, 0.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
         }
 
         .btn-study {
@@ -55,14 +68,38 @@
             opacity: 0.9;
             color: var(--text-main);
         }
+
+        .theme-option-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .theme-option-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .theme-option-card.active-theme {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
     </style>
+    <script>
+        // Apply saved theme immediately on load to prevent flashing
+        const savedTheme = localStorage.getItem('app_theme') || 'theme-peach';
+        document.documentElement.className = savedTheme;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.className = savedTheme;
+            updateActiveThemeUI(savedTheme);
+        });
+    </script>
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <nav class="navbar navbar-custom">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-5 text-dark text-decoration-none" href="index.html">
+            <a class="navbar-brand fw-bold fs-5 text-decoration-none" style="color: var(--text-main);" href="index.html">
                 <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
             </a>
             <span class="fw-semibold" style="color: var(--text-main);">Settings</span>
@@ -70,25 +107,44 @@
     </nav>
 
     <!-- Main Container -->
-    <main class="container py-5" style="max-width: 600px;">
+    <main class="container py-5" style="max-width: 650px;">
         <div class="row mb-4">
             <div class="col-12">
                 <h1 class="fw-bold display-6 mb-2">Preferences</h1>
-                <p class="text-muted">Customize your study environment and application settings.</p>
+                <p class="text-muted">Customize your study environment and application theme.</p>
             </div>
         </div>
 
         <div class="glass-card p-4 mb-4">
-            <h3 class="h5 fw-bold mb-3"><i class="fa-solid fa-palette me-2" style="color: #d8a47f;"></i> Theme Appearance</h3>
-            <hr class="border-secondary opacity-25">
-            <div class="d-flex justify-content-between align-items-center py-2">
-                <div>
-                    <h6 class="mb-1 fw-semibold">Active Color Scheme</h6>
-                    <small class="text-muted">Soft Baby Peach Pink & White Caramel Theme.</small>
+            <h3 class="h5 fw-bold mb-3"><i class="fa-solid fa-palette me-2" style="color: var(--accent-color);"></i> Theme Selection</h3>
+            <hr class="border-secondary opacity-25 mb-4">
+            
+            <div class="row g-3">
+                <!-- Peach & Caramel Theme Option -->
+                <div class="col-md-6">
+                    <div id="card-peach" class="glass-card p-3 theme-option-card text-center" onclick="setAppTheme('theme-peach')">
+                        <div class="d-flex justify-content-center gap-2 mb-2">
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #fff5f2; border: 1px solid #ccc;"></span>
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #ffb5a7;"></span>
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #5c4033;"></span>
+                        </div>
+                        <h6 class="fw-bold mb-1">Peach & Caramel</h6>
+                        <small class="text-muted">Soft baby peach pink & warm caramel</small>
+                    </div>
                 </div>
-                <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background: rgba(255, 181, 167, 0.4); color: var(--text-main);">
-                    <i class="fa-solid fa-check me-1"></i> Enabled
-                </span>
+
+                <!-- Ocean Blue & Sand Theme Option -->
+                <div class="col-md-6">
+                    <div id="card-ocean" class="glass-card p-3 theme-option-card text-center" onclick="setAppTheme('theme-ocean')">
+                        <div class="d-flex justify-content-center gap-2 mb-2">
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #f0f4f8; border: 1px solid #ccc;"></span>
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #0ea5e9;"></span>
+                            <span class="rounded-circle" style="width: 24px; height: 24px; background: #1e3a8a;"></span>
+                        </div>
+                        <h6 class="fw-bold mb-1">Ocean Blue & Sand</h6>
+                        <small class="text-muted">Refreshing ocean blue & sand vibe</small>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -98,5 +154,28 @@
             </a>
         </div>
     </main>
+
+    <script>
+        function setAppTheme(themeName) {
+            document.body.className = themeName;
+            localStorage.setItem('app_theme', themeName);
+            updateActiveThemeUI(themeName);
+        }
+
+        function updateActiveThemeUI(themeName) {
+            const peachCard = document.getElementById('card-peach');
+            const oceanCard = document.getElementById('card-ocean');
+
+            if (!peachCard || !oceanCard) return;
+
+            if (themeName === 'theme-ocean') {
+                oceanCard.classList.add('active-theme');
+                peachCard.classList.remove('active-theme');
+            } else {
+                peachCard.classList.add('active-theme');
+                oceanCard.classList.remove('active-theme');
+            }
+        }
+    </script>
 </body>
 </html>
