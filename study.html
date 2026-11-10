@@ -11,7 +11,6 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="CSS/transition.css">
     <!-- Global Light Mode Styles & Script -->
     <style>
         body.light-mode {
@@ -128,8 +127,14 @@
             <a class="navbar-brand fw-bold fs-6 text-white" href="index.html">
                 <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
             </a>
-            <h5 id="deck-title" class="text-bright m-0 text-truncate px-3 text-center" style="max-width: 400px;">Loading Deck...</h5>
+            <h5 id="deck-title" class="text-bright m-0 text-truncate px-3 text-center" style="max-width: 300px;">Loading Deck...</h5>
             <div class="d-flex align-items-center gap-2">
+                <a id="learn-btn" href="#" class="btn btn-custom btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-brain me-1"></i> Learn
+                </a>
+                <a id="match-btn" href="#" class="btn btn-custom btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-puzzle-piece me-1"></i> Match
+                </a>
                 <a id="test-btn" href="#" class="btn btn-primary-custom btn-sm rounded-pill px-3">
                     <i class="fa-solid fa-pen-to-square me-1"></i> Test
                 </a>
@@ -204,7 +209,9 @@
                 return;
             }
 
-            // Set test button link
+            // Set dynamic button links for Learn, Match, and Test
+            document.getElementById('learn-btn').href = `learn.html?id=${setId}`;
+            document.getElementById('match-btn').href = `match.html?id=${setId}`;
             document.getElementById('test-btn').href = `test.html?id=${setId}`;
 
             fetch(`backend/get_sets.php?id=${setId}`)
