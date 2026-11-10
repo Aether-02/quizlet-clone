@@ -3,145 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Dashboard - Quizlet Clone</title>
+    <title>StudyHub Dashboard</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts: Space Grotesk -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-   <link rel="stylesheet" href="CSS/transition.css">
+    <link rel="stylesheet" href="CSS/transition.css">
     
-    <!-- Global Light Mode Styles & Script -->
+    <!-- Soft Baby Peach Pink & White Caramel Theme Styles -->
     <style>
-        /* Global Light Mode Overrides for All Pages */
-        body.light-mode {
-            background-color: #f8fafc !important;
-            color: #0f172a !important;
+        :root {
+            --bg-main: #fff5f2; /* Soft white caramel / warm cream background */
+            --sidebar-bg: #ffebe6; /* Soft peach tint */
+            --card-bg: #ffffff;
+            --text-main: #5c4033; /* Warm caramel text */
+            --text-muted: #8c6d62;
+            --accent-peach: #ffb5a7; /* Baby peach */
+            --accent-caramel: #d8a47f;
+            --btn-gradient: linear-gradient(135deg, #ffb5a7 0%, #fcd5ce 100%);
         }
-        body.light-mode .glass-card,
-        body.light-mode .card-face,
-        body.light-mode .modal-content {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-            color: #0f172a !important;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08) !important;
-        }
-        body.light-mode .text-bright,
-        body.light-mode h1, body.light-mode h3, body.light-mode h5,
-        body.light-mode .card-text {
-            color: #0f172a !important;
-        }
-        body.light-mode .text-muted-bright {
-            color: #475569 !important;
-        }
-        body.light-mode .form-control {
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-color: rgba(0, 0, 0, 0.2) !important;
-        }
-    </style>
-    <script>
-        // Apply saved theme immediately on page load
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.classList.add('light-mode');
-            });
-        }
-    </script>
 
-    <style>
-        body {
+        body.light-mode, body {
             font-family: 'Space Grotesk', sans-serif;
-            background-color: #0b0f19;
-            color: #ffffff;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             min-height: 100vh;
+            margin: 0;
+            display: flex;
         }
-        .glass-card {
-            background: rgba(22, 27, 34, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid rgba(216, 164, 127, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            padding: 1.5rem 1rem;
+        }
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background-color: rgba(255, 181, 167, 0.3);
+            color: var(--text-main);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2rem 3rem;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        .search-box {
+            background: #ffffff;
+            border: 1px solid rgba(216, 164, 127, 0.3);
+            border-radius: 2rem;
+            padding: 0.5rem 1.25rem;
+            width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px rgba(216, 164, 127, 0.08);
+        }
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Create Button & Dropdown Menu */
+        .create-dropdown .dropdown-menu {
+            background: #ffffff;
+            border: 1px solid rgba(216, 164, 127, 0.3);
             border-radius: 1rem;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 10px 30px rgba(216, 164, 127, 0.15);
+            padding: 0.5rem;
+            min-width: 220px;
+        }
+        .dropdown-item {
+            color: var(--text-main);
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem;
+            font-weight: 500;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(255, 181, 167, 0.2);
+            color: var(--text-main);
+        }
+        .btn-create {
+            background: var(--btn-gradient);
+            border: none;
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 181, 167, 0.4);
+            transition: transform 0.2s;
+        }
+        .btn-create:hover {
+            transform: scale(1.05);
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #ffebe6 0%, #fcd5ce 100%);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(216, 164, 127, 0.1);
+            border: 1px solid rgba(255, 181, 167, 0.4);
+        }
+
+        /* Cards Styling */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(216, 164, 127, 0.25);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 25px rgba(216, 164, 127, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .glass-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 12px 35px rgba(216, 164, 127, 0.15);
         }
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        .badge-terms {
+            background: rgba(255, 181, 167, 0.3);
+            color: var(--text-main);
+        }
+        .btn-study {
+            background: var(--btn-gradient);
+            color: var(--text-main);
             border: none;
-            color: white;
             font-weight: 600;
         }
-        .btn-primary-custom:hover {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-            color: white;
-        }
-        .text-bright { color: #ffffff !important; }
-        .text-muted-bright { color: #cbd5e1 !important; }
-        
-        /* Modal Customization for Square Boxes & Dark Glass Theme */
-        .modal-content {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            border-radius: 0.5rem;
-        }
-        .form-control, .form-control:focus {
-            background-color: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 0.375rem;
-        }
-        .form-control:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+        .btn-study:hover {
+            opacity: 0.9;
+            color: var(--text-main);
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
-                <i class="fa-solid fa-graduation-cap me-2 text-indigo"></i> StudyHub
-            </a>
-            <div class="d-flex align-items-center gap-3">
-                <a href="settings.html" class="btn btn-outline-light btn-sm rounded-circle p-2" title="Settings">
-                    <i class="fa-solid fa-gear"></i>
-                </a>
-                <a href="create-set.html" class="btn btn-primary-custom px-4 py-2 rounded-pill shadow-sm">
-                    <i class="fa-solid fa-plus me-2"></i> Create Study Set
-                </a>
-            </div>
+    <!-- Left Sidebar Navigation -->
+    <nav class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fa-solid fa-graduation-cap" style="color: #ffb5a7;"></i> StudyHub
+        </a>
+        <div class="d-flex flex-column gap-2 mb-4">
+            <a href="index.html" class="nav-link-custom active"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="settings.html" class="nav-link-custom"><i class="fa-solid fa-gear"></i> Settings</a>
+        </div>
+        <hr style="border-color: rgba(216, 164, 127, 0.2);">
+        <div class="text-uppercase small fw-bold text-muted px-2 mb-2">Quick Start</div>
+        <div class="d-flex flex-column gap-2">
+            <a href="create-set.html" class="nav-link-custom"><i class="fa-solid fa-layer-group"></i> Flashcards</a>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <main class="container py-5">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="fw-bold display-6 text-bright">Study Dashboard</h1>
-                <p class="text-muted-bright">Explore your decks, master your topics, and ace your exams.</p>
+    <!-- Main Content Container -->
+    <main class="main-content">
+        <!-- Top Navigation Bar -->
+        <div class="top-bar">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text" placeholder="Search for a study set or topic...">
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Dropdown for What User Wants to Do -->
+                <div class="dropdown create-dropdown">
+                    <button class="btn-create dropdown-toggle hide-arrow" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Create">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="create-set.html"><i class="fa-solid fa-layer-group me-2 text-muted"></i> Flashcard set</a></li>
+                        <li><a class="dropdown-item" href="settings.html"><i class="fa-solid fa-gear me-2 text-muted"></i> Settings & Theme</a></li>
+                        <li><hr class="dropdown-divider opacity-25"></li>
+                        <li><a class="dropdown-item" href="index.html"><i class="fa-solid fa-house me-2 text-muted"></i> Dashboard Home</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Loading State / Error Alert -->
-        <div id="loading-spinner" class="text-center py-5">
-            <div class="spinner-border text-light" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div>
+                <h2 class="fw-bold mb-2">Master your exams with ease!</h2>
+                <p class="text-muted mb-4">Explore your custom decks, track your progress, and study efficiently.</p>
+                <a href="create-set.html" class="btn btn-study px-4 py-2 rounded-pill shadow-sm">
+                    <i class="fa-solid fa-plus me-2"></i> Create Study Set
+                </a>
             </div>
-            <p class="text-muted-bright mt-3">Loading your study sets from the server...</p>
+            <div class="d-none d-md-block">
+                <i class="fa-solid fa-book-open-reader display-3" style="color: #d8a47f; opacity: 0.8;"></i>
+            </div>
+        </div>
+
+        <!-- Dashboard Section Title -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="fw-bold">Your Study Sets</h3>
+            </div>
+        </div>
+
+        <!-- Loading / Error Alerts -->
+        <div id="loading-spinner" class="text-center py-5">
+            <div class="spinner-border" role="status" style="color: var(--accent-caramel);"></div>
+            <p class="text-muted mt-3">Loading your decks...</p>
         </div>
 
         <div id="error-alert" class="alert alert-danger d-none" role="alert">
-            Failed to load study sets from the server. Please check your connection or database configuration.
+            Failed to load study sets from the server.
         </div>
 
         <!-- Study Sets Grid -->
@@ -149,41 +261,37 @@
     </main>
 
     <!-- Edit / Update Modal Popup -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content p-3">
-                <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title fw-bold text-bright" id="editModalLabel">Edit Study Set</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content p-3" style="background-color: var(--bg-main); border: 1px solid rgba(216, 164, 127, 0.4); color: var(--text-main);">
+                <div class="modal-header border-bottom border-secondary opacity-25">
+                    <h5 class="modal-title fw-bold">Edit Study Set</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-set-form">
                         <input type="hidden" id="edit-set-id">
                         <div class="mb-3">
-                            <label for="edit-title" class="form-label text-muted-bright fw-semibold">Title</label>
-                            <input type="text" class="form-control" id="edit-title" required>
+                            <label for="edit-title" class="form-label fw-semibold">Title</label>
+                            <input type="text" class="form-control bg-white" id="edit-title" required style="border-color: rgba(216, 164, 127, 0.4); color: var(--text-main);">
                         </div>
                         <div class="mb-4">
-                            <label for="edit-description" class="form-label text-muted-bright fw-semibold">Description</label>
-                            <textarea class="form-control" id="edit-description" rows="2"></textarea>
+                            <label for="edit-description" class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control bg-white" id="edit-description" rows="2" style="border-color: rgba(216, 164, 127, 0.4); color: var(--text-main);"></textarea>
                         </div>
-
-                        <hr class="border-secondary opacity-50 my-4">
+                        <hr class="opacity-25 my-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="text-bright m-0">Terms & Definitions</h5>
-                            <button type="button" class="btn btn-outline-light btn-sm rounded-0 px-3" onclick="addTermRow()">
+                            <h5 class="m-0">Terms & Definitions</h5>
+                            <button type="button" class="btn btn-outline-dark btn-sm rounded-0 px-3" onclick="addTermRow()">
                                 <i class="fa-solid fa-plus me-1"></i> Add Card
                             </button>
                         </div>
-
-                        <div id="edit-terms-container" class="d-flex flex-column gap-3">
-                            <!-- Dynamic terms injected here -->
-                        </div>
+                        <div id="edit-terms-container" class="d-flex flex-column gap-3"></div>
                     </form>
                 </div>
-                <div class="modal-footer border-top border-secondary">
-                    <button type="button" class="btn btn-outline-light rounded-0 px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary-custom rounded-0 px-4" onclick="saveUpdatedSet()">Save Changes</button>
+                <div class="modal-footer border-top border-secondary opacity-25">
+                    <button type="button" class="btn btn-outline-secondary rounded-0 px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-study rounded-0 px-4" onclick="saveUpdatedSet()">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -192,7 +300,7 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript to Fetch, Render, Edit Popup, and Delete Study Sets -->
+    <!-- Dashboard Scripts -->
     <script>
         let editModalInstance = null;
 
@@ -273,7 +381,7 @@
                 if (!sets || sets.length === 0) {
                     setsGrid.innerHTML = `
                         <div class="col-12 text-center py-5">
-                            <p class="text-muted-bright fs-5">No study sets found yet. Create your first one!</p>
+                            <p class="text-muted fs-5">No study sets found yet. Create your first one!</p>
                         </div>
                     `;
                     return;
@@ -284,19 +392,19 @@
                         <div class="glass-card p-4 d-flex flex-column justify-content-between h-100">
                             <div>
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">
+                                    <span class="badge badge-terms px-3 py-2 rounded-pill fw-semibold">
                                         ${set.term_count || 0} terms
                                     </span>
-                                    <small class="text-muted-bright">${new Date(set.created_at).toLocaleDateString()}</small>
+                                    <small class="text-muted">${new Date(set.created_at).toLocaleDateString()}</small>
                                 </div>
-                                <h3 class="h5 fw-bold text-bright mb-2">${escapeHtml(set.title)}</h3>
-                                <p class="text-muted-bright small mb-4">${escapeHtml(set.description || 'No description provided.')}</p>
+                                <h3 class="h5 fw-bold mb-2">${escapeHtml(set.title)}</h3>
+                                <p class="text-muted small mb-4">${escapeHtml(set.description || 'No description provided.')}</p>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="study.html?id=${set.id}" class="btn btn-primary-custom btn-sm flex-grow-1 rounded-pill py-2 fw-semibold">
+                                <a href="study.html?id=${set.id}" class="btn btn-study btn-sm flex-grow-1 rounded-pill py-2">
                                     <i class="fa-solid fa-bolt me-1"></i> Study
                                 </a>
-                                <button onclick="openEditModal(${set.id})" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2" title="Edit Set">
+                                <button onclick="openEditModal(${set.id})" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-2" title="Edit Set">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
                                 <button onclick="deleteSet(${set.id})" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2" title="Delete Set">
@@ -315,12 +423,12 @@
                 cardDiv.innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-5">
-                            <label class="form-label small text-muted-bright">Term</label>
-                            <input type="text" class="form-control term-input" value="${escapeHtml(termVal)}" required>
+                            <label class="form-label small text-muted">Term</label>
+                            <input type="text" class="form-control term-input bg-white" value="${escapeHtml(termVal)}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small text-muted-bright">Definition</label>
-                            <textarea class="form-control def-input" rows="2" required>${escapeHtml(defVal)}</textarea>
+                            <label class="form-label small text-muted">Definition</label>
+                            <textarea class="form-control def-input bg-white" rows="2" required>${escapeHtml(defVal)}</textarea>
                         </div>
                         <div class="col-md-1 d-flex align-items-center justify-content-center">
                             <button type="button" class="btn btn-outline-danger btn-sm rounded-0 mt-3" onclick="this.closest('.glass-card').remove()">
