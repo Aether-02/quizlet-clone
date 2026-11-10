@@ -17,12 +17,12 @@
         }
 
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(17, 24, 39, 0.85);
-            --border-glass: rgba(255, 255, 255, 0.12);
-            --accent-glow: #6366f1;
-            --text-main: #ffffff;
-            --text-muted: #cbd5e1;
+            --bg-color: #fff5f2; /* White caramel background */
+            --card-bg: #ffffff;
+            --border-glass: rgba(216, 164, 127, 0.25);
+            --accent-glow: #ffb5a7; /* Baby peach pink */
+            --text-main: #5c4033; /* Warm caramel text */
+            --text-muted: #8c6d62;
         }
 
         body {
@@ -45,7 +45,7 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-glass);
             border-radius: 1rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(216, 164, 127, 0.1);
         }
 
         /* Match Tile Card */
@@ -65,11 +65,11 @@
         .match-tile:hover {
             border-color: var(--accent-glow);
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 181, 167, 0.3);
         }
 
         .match-tile.selected {
-            background: rgba(99, 102, 241, 0.3) !important;
+            background: rgba(255, 181, 167, 0.3) !important;
             border-color: var(--accent-glow) !important;
             transform: scale(0.98);
         }
@@ -81,9 +81,9 @@
         }
 
         .btn-custom-accent {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, #ffb5a7, #fcd5ce);
             border: none;
-            color: white;
+            color: var(--text-main);
             font-weight: 600;
             border-radius: 0.75rem;
         }
@@ -91,7 +91,8 @@
         .btn-custom-accent:hover {
             opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 181, 167, 0.4);
+            color: var(--text-main);
         }
     </style>
 </head>
@@ -100,24 +101,24 @@
     <div class="container py-4 d-flex flex-column flex-grow-1" style="max-width: 900px;">
         <!-- Top Navigation Bar -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <a id="backLink" href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <a id="backLink" href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fa-solid fa-arrow-left me-1"></i> Exit Game
             </a>
-            <h4 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Match Mode</h4>
+            <h4 id="setTitle" class="fw-bold mb-0 text-truncate mx-3" style="color: var(--text-main);">Match Mode</h4>
             <div class="glass-card px-3 py-1 d-flex align-items-center gap-2">
-                <i class="fa-regular fa-clock text-indigo" style="color: #818cf8;"></i>
-                <span id="timerDisplay" class="fw-bold fs-5 text-light">0.0s</span>
+                <i class="fa-regular fa-clock" style="color: #d8a47f;"></i>
+                <span id="timerDisplay" class="fw-bold fs-5">0.0s</span>
             </div>
         </div>
 
         <!-- Victory Modal Card (Hidden Initially) -->
         <div id="victoryCard" class="glass-card p-5 text-center my-auto d-none mx-auto" style="max-width: 500px; width: 100%;">
             <i class="fa-solid fa-trophy fa-3x mb-3 text-warning"></i>
-            <h2 class="fw-bold text-light mb-2">Amazing Job!</h2>
+            <h2 class="fw-bold mb-2">Amazing Job!</h2>
             <p class="text-muted mb-4">You matched all the pairs successfully.</p>
-            <h1 id="finalTimeDisplay" class="display-3 fw-bold text-light mb-4">0.0s</h1>
+            <h1 id="finalTimeDisplay" class="display-3 fw-bold mb-4">0.0s</h1>
             <div class="d-flex justify-content-center gap-3">
-                <button onclick="window.location.reload()" class="btn btn-outline-light px-4 py-2 rounded-pill">Play Again</button>
+                <button onclick="window.location.reload()" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Play Again</button>
                 <a id="backToStudyBtn" href="#" class="btn btn-custom-accent px-4 py-2">Back to Flashcards</a>
             </div>
         </div>
@@ -187,20 +188,17 @@
         }
 
         function initGame() {
-            // Take up to 6 terms for a clean 12-card grid board
             const selectedTerms = [...rawTerms].sort(() => 0.5 - Math.random()).slice(0, 6);
             totalPairs = selectedTerms.length;
             matchesFound = 0;
 
             gameCards = [];
             selectedTerms.forEach((item, index) => {
-                // Term card
                 gameCards.push({
                     id: index,
                     text: item.term,
                     type: 'term'
                 });
-                // Definition card
                 gameCards.push({
                     id: index,
                     text: item.definition,
@@ -208,7 +206,6 @@
                 });
             });
 
-            // Shuffle all cards
             gameCards.sort(() => 0.5 - Math.random());
             renderBoard();
         }
@@ -226,7 +223,6 @@
                 matchGridContainer.appendChild(col);
             });
 
-            // Add click listeners to tiles
             document.querySelectorAll('.match-tile').forEach(tile => {
                 tile.addEventListener('click', () => handleTileClick(tile));
             });
@@ -255,7 +251,6 @@
                 const secondPair = tile.getAttribute('data-pair');
 
                 if (firstPair === secondPair && selectedCard !== tile) {
-                    // Correct Match!
                     selectedCard.classList.remove('selected');
                     selectedCard.classList.add('matched');
                     tile.classList.add('matched');
@@ -269,7 +264,6 @@
                         victoryCard.classList.remove('d-none');
                     }
                 } else {
-                    // Incorrect Match
                     tile.classList.add('selected');
                     setTimeout(() => {
                         selectedCard.classList.remove('selected');

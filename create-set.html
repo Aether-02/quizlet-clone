@@ -10,137 +10,239 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="CSS/transition.css">
     
-    <!-- Universal Document Parsers (PDF.js, Mammoth.js for Word, SheetJS for Excel) -->
+    <!-- Universal Document Parsers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- Global Light Mode Styles & Script -->
+    <!-- Soft Baby Peach Pink & White Caramel Theme Styles -->
     <style>
-        body.light-mode {
-            background-color: #f8fafc !important;
-            color: #0f172a !important;
+        :root {
+            --bg-main: #fff5f2; /* Soft white caramel / warm cream background */
+            --sidebar-bg: #ffebe6; /* Soft peach tint */
+            --card-bg: #ffffff;
+            --text-main: #5c4033; /* Warm caramel text */
+            --text-muted: #8c6d62;
+            --accent-peach: #ffb5a7; /* Baby peach */
+            --accent-caramel: #d8a47f;
+            --btn-gradient: linear-gradient(135deg, #ffb5a7 0%, #fcd5ce 100%);
         }
-        body.light-mode .glass-card,
-        body.light-mode .modal-content {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-            color: #0f172a !important;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08) !important;
-        }
-        body.light-mode .text-bright,
-        body.light-mode h1, body.light-mode h3, body.light-mode h5 {
-            color: #0f172a !important;
-        }
-        body.light-mode .text-muted-bright {
-            color: #475569 !important;
-        }
-        body.light-mode .form-control, body.light-mode .form-range {
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-color: rgba(0, 0, 0, 0.2) !important;
-        }
-    </style>
-    <script>
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.classList.add('light-mode');
-            });
-        }
-    </script>
 
-    <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background-color: #0b0f19;
-            color: #ffffff;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
         }
+
+        /* Collapsible Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid rgba(216, 164, 127, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            padding: 1.5rem 1rem;
+            z-index: 1050;
+            transition: width 0.3s ease, transform 0.3s ease;
+        }
+
+        body.sidebar-collapsed .sidebar {
+            width: 80px;
+        }
+        body.sidebar-collapsed .sidebar .sidebar-text,
+        body.sidebar-collapsed .sidebar .sidebar-heading {
+            display: none !important;
+        }
+        body.sidebar-collapsed .sidebar .sidebar-brand span {
+            display: none !important;
+        }
+        body.sidebar-collapsed .main-content {
+            margin-left: 80px !important;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background-color: rgba(255, 181, 167, 0.3);
+            color: var(--text-main);
+        }
+        .nav-link-custom i {
+            font-size: 1.2rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2rem 3rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 181, 167, 0.2);
+            border: 1px solid rgba(216, 164, 127, 0.3);
+            font-size: 1.2rem;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            transition: background 0.2s;
+        }
+        .btn-menu-toggle:hover {
+            background: rgba(255, 181, 167, 0.4);
+        }
+
         .glass-card {
-            background: rgba(22, 27, 34, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5);
+            background: var(--card-bg);
+            border: 1px solid rgba(216, 164, 127, 0.25);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 25px rgba(216, 164, 127, 0.08);
         }
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
-        }
-        .btn-primary-custom:hover {
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-            color: white;
-        }
-        .text-bright { color: #ffffff !important; }
-        .text-muted-bright { color: #cbd5e1 !important; }
-        
-        .form-control, .form-control:focus {
-            background-color: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 0.375rem;
+
+        .form-control, .form-range {
+            background-color: #ffffff !important;
+            border: 1px solid rgba(216, 164, 127, 0.4) !important;
+            color: var(--text-main) !important;
+            border-radius: 0.5rem;
         }
         .form-control:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+            border-color: #ffb5a7 !important;
+            box-shadow: 0 0 0 0.25rem rgba(255, 181, 167, 0.25) !important;
+        }
+
+        .btn-study {
+            background: var(--btn-gradient);
+            color: var(--text-main);
+            border: none;
+            font-weight: 600;
+        }
+        .btn-study:hover {
+            opacity: 0.9;
+            color: var(--text-main);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            body.mobile-sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1.5rem 1rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
-                <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
-            </a>
-            <span class="text-white fw-semibold">Create Study Set</span>
+    <!-- Left Sidebar Navigation -->
+    <nav class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fa-solid fa-graduation-cap" style="color: #ffb5a7;"></i> <span class="sidebar-text">StudyHub</span>
+        </a>
+        <div class="d-flex flex-column gap-2 mb-4">
+            <a href="index.html" class="nav-link-custom"><i class="fa-solid fa-house"></i> <span class="sidebar-text">Home</span></a>
+            <a href="settings.html" class="nav-link-custom"><i class="fa-solid fa-gear"></i> <span class="sidebar-text">Settings</span></a>
+        </div>
+        <hr style="border-color: rgba(216, 164, 127, 0.2);">
+        <div class="text-uppercase small fw-bold text-muted px-2 mb-2 sidebar-heading">Quick Start</div>
+        <div class="d-flex flex-column gap-2">
+            <a href="create-set.html" class="nav-link-custom active"><i class="fa-solid fa-layer-group"></i> <span class="sidebar-text">Flashcards</span></a>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <main class="container py-5" style="max-width: 800px;">
+    <!-- Main Content Container -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="btn-menu-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <a href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+
         <div class="row mb-4">
             <div class="col-12">
-                <h1 class="fw-bold display-6 text-bright">Create New Study Set</h1>
-                <p class="text-muted-bright">Build your deck manually or upload any document (PDF, Word, Excel, JSON, TXT) for smart exam question generation.</p>
+                <h1 class="fw-bold display-6 mb-2">Create New Study Set</h1>
+                <p class="text-muted">Build your deck manually or upload any document for smart exam question generation.</p>
             </div>
         </div>
 
         <div class="glass-card p-4 mb-4">
             <form id="create-set-form">
-                <!-- Set Details -->
                 <div class="mb-3">
-                    <label for="title" class="form-label text-muted-bright fw-semibold">Title</label>
+                    <label for="title" class="form-label fw-semibold">Title</label>
                     <input type="text" class="form-control" id="title" placeholder="e.g. Philippine Legal System Midterms" required>
                 </div>
                 <div class="mb-4">
-                    <label for="description" class="form-label text-muted-bright fw-semibold">Description</label>
+                    <label for="description" class="form-label fw-semibold">Description</label>
                     <textarea class="form-control" id="description" rows="2" placeholder="Briefly describe what this set covers..."></textarea>
                 </div>
 
-                <hr class="border-secondary opacity-50 my-4">
+                <hr class="border-secondary opacity-25 my-4">
 
-                <!-- Universal File Attachment & Generator Settings -->
+                <!-- Smart File Attachment & Generator Settings -->
                 <div class="mb-4">
-                    <h5 class="text-bright mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-indigo"></i> Smart AI Exam Generator</h5>
-                    <div class="p-3 bg-dark bg-opacity-50 border border-secondary rounded-3 mb-3">
-                        <label for="study-file" class="form-label text-muted-bright small fw-semibold">Upload Any Study File (PDF, DOCX, XLSX, JSON, TXT)</label>
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-dark"></i> Smart AI Exam Generator</h5>
+                    <div class="p-3 rounded-3 mb-3" style="background: rgba(255, 235, 230, 0.5); border: 1px solid rgba(216, 164, 127, 0.3);">
+                        <label for="study-file" class="form-label small fw-semibold">Upload Study Document (PDF, DOCX, XLSX, JSON, TXT)</label>
                         <input type="file" class="form-control form-control-sm mb-3" id="study-file" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.json,.txt">
                         
                         <div class="row align-items-center g-3">
                             <div class="col-md-8">
-                                <label for="card-count-range" class="form-label small text-muted-bright mb-1">
-                                    Number of Flashcards to Generate: <span id="count-display" class="fw-bold text-bright">25</span> (Max: 200)
+                                <label for="card-count-range" class="form-label small text-muted mb-1">
+                                    Number of Flashcards to Generate: <span id="count-display" class="fw-bold">25</span> (Max: 200)
                                 </label>
                                 <input type="range" class="form-range" id="card-count-range" min="5" max="200" value="25" oninput="document.getElementById('count-display').textContent = this.value">
                             </div>
                             <div class="col-md-4 text-md-end">
-                                <button type="button" class="btn btn-primary-custom btn-sm w-100 rounded-pill py-2 fw-semibold" onclick="generateSmartCards()">
+                                <button type="button" class="btn btn-study btn-sm w-100 rounded-pill py-2 fw-semibold shadow-sm" onclick="generateSmartCards()">
                                     <i class="fa-solid fa-brain me-1"></i> Generate Questions
                                 </button>
                             </div>
@@ -148,13 +250,13 @@
                     </div>
                 </div>
 
-                <hr class="border-secondary opacity-50 my-4">
+                <hr class="border-secondary opacity-25 my-4">
 
                 <!-- Cards Editor Header -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="text-bright m-0">Flashcards</h5>
+                    <h5 class="fw-bold m-0">Flashcards</h5>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-light btn-sm rounded-0 px-3" onclick="addTermRow()">
+                        <button type="button" class="btn btn-outline-dark btn-sm rounded-0 px-3" onclick="addTermRow()">
                             <i class="fa-solid fa-plus me-1"></i> Add Card
                         </button>
                         <button type="button" class="btn btn-outline-danger btn-sm rounded-0 px-2 py-1" onclick="clearAllCards()" title="Clear All Cards">
@@ -169,7 +271,7 @@
                 <div id="terms-container" class="d-flex flex-column gap-3 mb-4"></div>
 
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary-custom px-5 py-2 rounded-pill shadow-sm fw-bold">
+                    <button type="submit" class="btn btn-study px-5 py-2 rounded-pill shadow-sm fw-bold">
                         <i class="fa-solid fa-check me-2"></i> Save Study Set
                     </button>
                 </div>
@@ -177,8 +279,16 @@
         </div>
     </main>
 
-    <!-- Script with Universal File Parsers (PDF, DOCX, XLSX, JSON, TXT) -->
+    <!-- Script -->
     <script>
+        function toggleSidebar() {
+            if (window.innerWidth <= 992) {
+                document.body.classList.toggle('mobile-sidebar-open');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             addTermRow();
             addTermRow();
@@ -196,11 +306,11 @@
             cardDiv.innerHTML = `
                 <div class="row g-3">
                     <div class="col-md-5">
-                        <label class="form-label small text-muted-bright">Question / Term</label>
+                        <label class="form-label small text-muted">Question / Term</label>
                         <input type="text" class="form-control term-input" value="${escapeHtml(termVal)}" placeholder="Enter question or concept..." required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small text-muted-bright">Answer / Detailed Explanation</label>
+                        <label class="form-label small text-muted">Answer / Detailed Explanation</label>
                         <textarea class="form-control def-input" rows="2" placeholder="Enter rigorous exam answer..." required>${escapeHtml(defVal)}</textarea>
                     </div>
                     <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -219,7 +329,6 @@
             }
         }
 
-        // Universal File Reader & Smart Exam Question Generator
         async function generateSmartCards() {
             const fileInput = document.getElementById('study-file');
             const targetCount = parseInt(document.getElementById('card-count-range').value) || 25;
@@ -257,28 +366,17 @@
                 let generatedCount = 0;
                 while (generatedCount < targetCount) {
                     const sourceItem = parsedData[generatedCount % parsedData.length];
-                    const variant = Math.floor(generatedCount / parsedData.length);
-                    
-                    let qText = sourceItem.term;
-                    let aText = sourceItem.definition;
-
-                    if (variant > 0) {
-                        qText = `(Application ${variant + 1}) Analyze: ${qText}`;
-                        aText = `Detailed breakdown: ${aText}`;
-                    }
-
-                    addTermRow(qText, aText);
+                    addTermRow(sourceItem.term, sourceItem.definition);
                     generatedCount++;
                 }
 
                 alert(`Successfully generated ${generatedCount} exam-level questions from ${file.name}!`);
             } catch (err) {
                 console.error('File parsing error:', err);
-                alert('Error processing file. Please ensure the file is not corrupted.');
+                alert('Error processing file. Please ensure the file is valid.');
             }
         }
 
-        // --- PARSERS FOR EACH FILE TYPE ---
         async function parsePDF(file) {
             const arrayBuffer = await file.arrayBuffer();
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -288,7 +386,10 @@
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                if (!pageText.includes('%PDF-') && !pageText.includes('obj <<')) {
+                    extractedText += pageText + '\n';
+                }
             }
             return textToCards(extractedText);
         }
@@ -327,24 +428,24 @@
             return textToCards(text);
         }
 
-        // Helper to convert raw text blocks into Q&A pairs
         function textToCards(text) {
-            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
+            const sentences = text.split(/(?<=[.?!])\s+/).map(s => s.trim()).filter(s => s.length > 10);
             let cards = [];
-            for (let i = 0; i < lines.length; i += 2) {
-                if (lines[i] && lines[i+1]) {
+            
+            for (let i = 0; i < sentences.length; i += 2) {
+                if (sentences[i] && sentences[i+1]) {
                     cards.push({
-                        term: lines[i],
-                        definition: lines[i+1]
+                        term: `Explain: ${sentences[i]}`,
+                        definition: sentences[i+1]
                     });
                 }
             }
-            if (cards.length === 0 && lines.length > 0) {
-                // Fallback if text doesn't alternate neatly
-                for (let i = 0; i < lines.length; i++) {
+            
+            if (cards.length === 0 && sentences.length > 0) {
+                for (let i = 0; i < sentences.length; i++) {
                     cards.push({
-                        term: `Concept / Rule ${i+1}`,
-                        definition: lines[i]
+                        term: `Concept ${i+1}`,
+                        definition: sentences[i]
                     });
                 }
             }

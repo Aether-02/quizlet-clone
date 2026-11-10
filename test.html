@@ -17,12 +17,12 @@
         }
 
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(17, 24, 39, 0.85);
-            --border-glass: rgba(255, 255, 255, 0.12);
-            --accent-glow: #6366f1;
-            --text-main: #ffffff;
-            --text-muted: #cbd5e1;
+            --bg-color: #fff5f2; /* White caramel background */
+            --card-bg: #ffffff;
+            --border-glass: rgba(216, 164, 127, 0.25);
+            --accent-glow: #ffb5a7; /* Baby peach pink */
+            --text-main: #5c4033; /* Warm caramel text */
+            --text-muted: #8c6d62;
         }
 
         body {
@@ -44,20 +44,20 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-glass);
             border-radius: 1rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(216, 164, 127, 0.1);
         }
 
         .form-control, .form-check-input {
-            background: rgba(31, 41, 55, 0.6);
+            background: #fff9f7;
             border: 1px solid var(--border-glass);
             color: var(--text-main);
         }
 
         .form-control:focus {
-            background: rgba(31, 41, 55, 0.9);
+            background: #ffffff;
             border-color: var(--accent-glow);
             color: var(--text-main);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 15px rgba(255, 181, 167, 0.3);
         }
 
         .form-check-input:checked {
@@ -66,9 +66,9 @@
         }
 
         .btn-custom-accent {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, #ffb5a7, #fcd5ce);
             border: none;
-            color: white;
+            color: var(--text-main);
             font-weight: 600;
             border-radius: 0.75rem;
         }
@@ -76,7 +76,8 @@
         .btn-custom-accent:hover {
             opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 181, 167, 0.4);
+            color: var(--text-main);
         }
 
         .question-card {
@@ -89,21 +90,21 @@
     <div class="container py-5" style="max-width: 800px;">
         <!-- Top Navigation Bar -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <a id="backLink" href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <a id="backLink" href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fa-solid fa-arrow-left me-1"></i> Exit Test
             </a>
-            <h3 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Loading Test...</h3>
-            <span id="questionCountBadge" class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3 py-2 rounded-pill">Test Mode</span>
+            <h3 id="setTitle" class="fw-bold mb-0 text-truncate mx-3" style="color: var(--text-main);">Loading Test...</h3>
+            <span id="questionCountBadge" class="badge px-3 py-2 rounded-pill" style="background: rgba(255, 181, 167, 0.3); color: var(--text-main); border: 1px solid var(--border-glass);">Test Mode</span>
         </div>
 
         <!-- Score Results Card (Hidden Initially) -->
         <div id="resultsCard" class="glass-card p-5 text-center mb-4 d-none">
-            <i class="fa-solid fa-award fa-3x text-indigo mb-3" style="color: #818cf8;"></i>
-            <h2 class="fw-bold text-light mb-2">Test Completed!</h2>
+            <i class="fa-solid fa-award fa-3x mb-3" style="color: #d8a47f;"></i>
+            <h2 class="fw-bold mb-2">Test Completed!</h2>
             <p class="text-muted mb-4">Here is how you performed on this study set.</p>
-            <h1 id="scoreDisplay" class="display-3 fw-bold text-light mb-4">0%</h1>
+            <h1 id="scoreDisplay" class="display-3 fw-bold mb-4">0%</h1>
             <div class="d-flex justify-content-center gap-3">
-                <button onclick="window.location.reload()" class="btn btn-outline-light px-4 py-2 rounded-pill">Retake Test</button>
+                <button onclick="window.location.reload()" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Retake Test</button>
                 <a id="backToStudyBtn" href="#" class="btn btn-custom-accent px-4 py-2">Back to Flashcards</a>
             </div>
         </div>
@@ -176,15 +177,12 @@
         function buildTestQuestions() {
             generatedQuestions = [];
             
-            // Shuffle terms to randomize test order
             const shuffled = [...setTerms].sort(() => 0.5 - Math.random());
 
             shuffled.forEach((item, index) => {
-                // Decide question type randomly: 0 = Multiple Choice, 1 = True/False, 2 = Written
                 const qType = index % 3;
 
                 if (qType === 0 && setTerms.length >= 4) {
-                    // Multiple Choice
                     const wrongOptions = setTerms
                         .filter(t => t.id !== item.id)
                         .sort(() => 0.5 - Math.random())
@@ -200,7 +198,6 @@
                         options: options
                     });
                 } else if (qType === 1) {
-                    // True / False
                     const isTrue = Math.random() < 0.5;
                     let displayDef = item.definition;
 
@@ -216,7 +213,6 @@
                         correct: isTrue ? 'True' : 'False'
                     });
                 } else {
-                    // Written Input
                     generatedQuestions.push({
                         type: 'written',
                         question: item.term,
@@ -234,7 +230,7 @@
                 const card = document.createElement('div');
                 card.className = 'glass-card p-4 question-card';
                 
-                let innerHtml = `<h5 class="fw-bold text-light mb-3">Q${idx + 1}. What is the definition of: <span class="text-indigo" style="color: #818cf8;">"${escapeHtml(q.question)}"</span>?</h5>`;
+                let innerHtml = `<h5 class="fw-bold mb-3">Q${idx + 1}. What is the definition of: <span style="color: #d8a47f;">"${escapeHtml(q.question)}"</span>?</h5>`;
 
                 if (q.type === 'mc') {
                     innerHtml += `<div class="d-flex flex-column gap-2">`;
@@ -242,7 +238,7 @@
                         innerHtml += `
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="q_${idx}" id="q_${idx}_${oIdx}" value="${escapeHtml(opt)}" required>
-                                <label class="form-check-label text-light" for="q_${idx}_${oIdx}">${escapeHtml(opt)}</label>
+                                <label class="form-check-label" for="q_${idx}_${oIdx}">${escapeHtml(opt)}</label>
                             </div>`;
                     });
                     innerHtml += `</div>`;
@@ -252,11 +248,11 @@
                         <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="q_${idx}" id="q_${idx}_true" value="True" required>
-                                <label class="form-check-label text-light" for="q_${idx}_true">True</label>
+                                <label class="form-check-label" for="q_${idx}_true">True</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="q_${idx}" id="q_${idx}_false" value="False" required>
-                                <label class="form-check-label text-light" for="q_${idx}_false">False</label>
+                                <label class="form-check-label" for="q_${idx}_false">False</label>
                             </div>
                         </div>`;
                 } else if (q.type === 'written') {
@@ -291,9 +287,9 @@
                 if (q.type === 'written') {
                     if (userAnswer.toLowerCase() === q.correct.toLowerCase()) {
                         correctCount++;
-                        cardEl.style.borderColor = '#22c55e'; // Green border for correct
+                        cardEl.style.borderColor = '#22c55e';
                     } else {
-                        cardEl.style.borderColor = '#ef4444'; // Red border for incorrect
+                        cardEl.style.borderColor = '#ef4444';
                         cardEl.innerHTML += `<div class="mt-3 text-danger small"><i class="fa-solid fa-xmark me-1"></i> Correct Answer: <strong>${escapeHtml(q.correct)}</strong></div>`;
                     }
                 } else {
@@ -310,7 +306,6 @@
             const percentage = Math.round((correctCount / generatedQuestions.length) * 100);
             scoreDisplay.textContent = `${percentage}%`;
             
-            // Show results card and hide submit button
             resultsCard.classList.remove('d-none');
             submitContainer.classList.add('d-none');
             window.scrollTo({ top: 0, behavior: 'smooth' });

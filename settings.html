@@ -121,4 +121,97 @@
         });
     </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - StudyHub</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #fff5f2;
+            --sidebar-bg: #ffebe6;
+            --card-bg: #ffffff;
+            --text-main: #5c4033;
+            --text-muted: #8c6d62;
+            --btn-gradient: linear-gradient(135deg, #ffb5a7 0%, #fcd5ce 100%);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .navbar-custom {
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid rgba(216, 164, 127, 0.2);
+            padding: 1rem 2rem;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(216, 164, 127, 0.25);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 25px rgba(216, 164, 127, 0.08);
+        }
+        .btn-study {
+            background: var(--btn-gradient);
+            color: var(--text-main);
+            border: none;
+            font-weight: 600;
+        }
+        .btn-study:hover {
+            opacity: 0.9;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold fs-5 text-dark text-decoration-none" href="index.html">
+                <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
+            </a>
+            <span class="fw-semibold" style="color: var(--text-main);">Settings</span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container py-5" style="max-width: 600px;">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="fw-bold display-6 mb-2">Preferences</h1>
+                <p class="text-muted">Customize your study environment and application settings.</p>
+            </div>
+        </div>
+
+        <div class="glass-card p-4 mb-4">
+            <h3 class="h5 fw-bold mb-3"><i class="fa-solid fa-sliders me-2" style="color: #d8a47f;"></i> General Options</h3>
+            <hr class="border-secondary opacity-25">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <h6 class="mb-1 fw-semibold">App Theme</h6>
+                    <small class="text-muted">Currently using the soft peach and white caramel palette.</small>
+                </div>
+                <span class="badge px-3 py-2 rounded-pill" style="background: rgba(255, 181, 167, 0.4); color: var(--text-main);">Active</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="index.html" class="btn btn-study px-5 py-2 rounded-pill shadow-sm">
+                Return to Dashboard
+            </a>
+        </div>
+    </main>
+</body>
 </html>

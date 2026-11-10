@@ -17,12 +17,12 @@
         }
 
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(17, 24, 39, 0.85);
-            --border-glass: rgba(255, 255, 255, 0.12);
-            --accent-glow: #6366f1;
-            --text-main: #ffffff;
-            --text-muted: #cbd5e1;
+            --bg-color: #fff5f2; /* White caramel background */
+            --card-bg: #ffffff;
+            --border-glass: rgba(216, 164, 127, 0.25);
+            --accent-glow: #ffb5a7; /* Baby peach pink */
+            --text-main: #5c4033; /* Warm caramel text */
+            --text-muted: #8c6d62;
         }
 
         body {
@@ -45,11 +45,11 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-glass);
             border-radius: 1rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(216, 164, 127, 0.1);
         }
 
         .option-btn {
-            background: rgba(31, 41, 55, 0.6);
+            background: #fff9f7;
             border: 1px solid var(--border-glass);
             color: var(--text-main);
             border-radius: 0.75rem;
@@ -62,7 +62,7 @@
 
         .option-btn:hover {
             border-color: var(--accent-glow);
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(255, 181, 167, 0.2);
             transform: translateY(-2px);
         }
 
@@ -77,9 +77,9 @@
         }
 
         .btn-custom-accent {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, #ffb5a7, #fcd5ce);
             border: none;
-            color: white;
+            color: var(--text-main);
             font-weight: 600;
             border-radius: 0.75rem;
         }
@@ -87,7 +87,8 @@
         .btn-custom-accent:hover {
             opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 181, 167, 0.4);
+            color: var(--text-main);
         }
     </style>
 </head>
@@ -96,20 +97,20 @@
     <div class="container py-4 d-flex flex-column flex-grow-1" style="max-width: 800px;">
         <!-- Top Navigation Bar -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <a id="backLink" href="index.html" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <a id="backLink" href="index.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fa-solid fa-arrow-left me-1"></i> Exit Learn
             </a>
-            <h4 id="setTitle" class="fw-bold text-light mb-0 text-truncate mx-3">Learn Mode</h4>
-            <span id="progressBadge" class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3 py-2 rounded-pill">Adaptive Spaced Repetition</span>
+            <h4 id="setTitle" class="fw-bold mb-0 text-truncate mx-3" style="color: var(--text-main);">Learn Mode</h4>
+            <span id="progressBadge" class="badge px-3 py-2 rounded-pill" style="background: rgba(255, 181, 167, 0.3); color: var(--text-main); border: 1px solid var(--border-glass);">Adaptive Spaced Repetition</span>
         </div>
 
         <!-- Completion Card (Hidden Initially) -->
         <div id="completionCard" class="glass-card p-5 text-center my-auto d-none mx-auto" style="width: 100%;">
             <i class="fa-solid fa-circle-check fa-3x mb-3 text-success"></i>
-            <h2 class="fw-bold text-light mb-2">Set Mastered!</h2>
+            <h2 class="fw-bold mb-2">Set Mastered!</h2>
             <p class="text-muted mb-4">You have successfully practiced and mastered all terms in this study set.</p>
             <div class="d-flex justify-content-center gap-3">
-                <button onclick="window.location.reload()" class="btn btn-outline-light px-4 py-2 rounded-pill">Practice Again</button>
+                <button onclick="window.location.reload()" class="btn btn-outline-secondary px-4 py-2 rounded-pill">Practice Again</button>
                 <a id="backToStudyBtn" href="#" class="btn btn-custom-accent px-4 py-2">Back to Flashcards</a>
             </div>
         </div>
@@ -120,7 +121,7 @@
                 <span id="queueStatus">Remaining in queue: 0</span>
                 <span id="masteryStatus">Mastered: 0 / 0</span>
             </div>
-            <h3 id="questionPrompt" class="fw-bold text-light mb-4 fs-4">Loading question...</h3>
+            <h3 id="questionPrompt" class="fw-bold mb-4 fs-4" style="color: var(--text-main);">Loading question...</h3>
             
             <div id="optionsContainer" class="d-flex flex-column gap-3">
                 <!-- Multiple choice option buttons injected here -->
@@ -178,7 +179,6 @@
                     return;
                 }
 
-                // Initialize queue with all terms
                 learningQueue = [...allTerms].sort(() => 0.5 - Math.random());
                 nextQuestion();
             } catch (err) {
@@ -200,9 +200,8 @@
             queueStatus.textContent = `Remaining in queue: ${learningQueue.length + 1}`;
             masteryStatus.textContent = `Mastered: ${masteredIds.size} / ${allTerms.length}`;
 
-            questionPrompt.innerHTML = `What is the definition of: <span class="text-indigo" style="color: #818cf8;">"${escapeHtml(currentItem.term)}"</span>?`;
+            questionPrompt.innerHTML = `What is the definition of: <span style="color: #d8a47f;">"${escapeHtml(currentItem.term)}"</span>?`;
 
-            // Generate 3 wrong distractors + correct definition
             const wrongOptions = allTerms
                 .filter(t => t.id !== currentItem.id)
                 .sort(() => 0.5 - Math.random())
@@ -233,13 +232,11 @@
                 masteredIds.add(currentItem.id);
             } else {
                 btnElement.classList.add('incorrect');
-                // Highlight correct button
                 buttons.forEach(b => {
                     if (b.textContent === currentItem.definition) {
                         b.classList.add('correct');
                     }
                 });
-                // Re-add to queue for spaced repetition review
                 learningQueue.push(currentItem);
             }
 
