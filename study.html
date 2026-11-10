@@ -99,7 +99,7 @@
     <!-- Main Study Area -->
     <main class="container my-auto py-4 text-center">
         <div id="loading-spinner" class="py-5">
-            <div class="spinner-border text-indigo text-light" role="status"></div>
+            <div class="spinner-border text-light" role="status"></div>
             <p class="text-muted-bright mt-3">Loading your flashcards...</p>
         </div>
 
@@ -157,7 +157,8 @@
                 return;
             }
 
-            fetch(`backend/get_set.php?id=${setId}`)
+            // FIXED: Now calling get_sets.php?id=X (plural endpoint)
+            fetch(`backend/get_sets.php?id=${setId}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('loading-spinner').style.display = 'none';
@@ -212,7 +213,6 @@
             document.getElementById('card-counter-back').textContent = counterText;
             document.getElementById('nav-counter').textContent = counterText;
 
-            // Reset flip state on card change
             if (isFlipped) {
                 document.getElementById('flashcard-element').classList.remove('flipped');
                 isFlipped = false;
