@@ -11,6 +11,11 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Universal Document Parsers (PDF.js, Mammoth.js for Word, SheetJS for Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- Global Light Mode Styles & Script -->
     <style>
         body.light-mode {
@@ -102,7 +107,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <h1 class="fw-bold display-6 text-bright">Create New Study Set</h1>
-                <p class="text-muted-bright">Build your deck manually or upload a study file for smart AI exam question generation.</p>
+                <p class="text-muted-bright">Build your deck manually or upload any document (PDF, Word, Excel, JSON, TXT) for smart exam question generation.</p>
             </div>
         </div>
 
@@ -120,12 +125,12 @@
 
                 <hr class="border-secondary opacity-50 my-4">
 
-                <!-- Smart File Attachment & Generator Settings -->
+                <!-- Universal File Attachment & Generator Settings -->
                 <div class="mb-4">
                     <h5 class="text-bright mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-indigo"></i> Smart AI Exam Generator</h5>
                     <div class="p-3 bg-dark bg-opacity-50 border border-secondary rounded-3 mb-3">
-                        <label for="study-file" class="form-label text-muted-bright small fw-semibold">Upload Study Document (TXT, PDF, JSON)</label>
-                        <input type="file" class="form-control form-control-sm mb-3" id="study-file" accept=".txt,.pdf,.json">
+                        <label for="study-file" class="form-label text-muted-bright small fw-semibold">Upload Any Study File (PDF, DOCX, XLSX, JSON, TXT)</label>
+                        <input type="file" class="form-control form-control-sm mb-3" id="study-file" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.json,.txt">
                         
                         <div class="row align-items-center g-3">
                             <div class="col-md-8">
@@ -152,7 +157,6 @@
                         <button type="button" class="btn btn-outline-light btn-sm rounded-0 px-3" onclick="addTermRow()">
                             <i class="fa-solid fa-plus me-1"></i> Add Card
                         </button>
-                        <!-- Clear Button with SVG Icon Only -->
                         <button type="button" class="btn btn-outline-danger btn-sm rounded-0 px-2 py-1" onclick="clearAllCards()" title="Clear All Cards">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                 <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5Zm4 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5Z"/>
@@ -162,9 +166,7 @@
                 </div>
 
                 <!-- Terms Container -->
-                <div id="terms-container" class="d-flex flex-column gap-3 mb-4">
-                    <!-- Initial Rows -->
-                </div>
+                <div id="terms-container" class="d-flex flex-column gap-3 mb-4"></div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary-custom px-5 py-2 rounded-pill shadow-sm fw-bold">
@@ -175,10 +177,9 @@
         </div>
     </main>
 
-    <!-- Script to Handle Manual & Smart Generation -->
+    <!-- Script with Universal File Parsers (PDF, DOCX, XLSX, JSON, TXT) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Start with 2 blank rows
             addTermRow();
             addTermRow();
 
@@ -212,73 +213,142 @@
             container.appendChild(cardDiv);
         }
 
-        // Clear All Cards Function
         function clearAllCards() {
             if (confirm('Are you sure you want to clear all flashcards?')) {
-                const container = document.getElementById('terms-container');
-                container.innerHTML = '';
+                document.getElementById('terms-container').innerHTML = '';
             }
         }
 
-        // Smart Generator simulating advanced exam question parsing from uploaded files
-        function generateSmartCards() {
+        // Universal File Reader & Smart Exam Question Generator
+        async function generateSmartCards() {
             const fileInput = document.getElementById('study-file');
             const targetCount = parseInt(document.getElementById('card-count-range').value) || 25;
 
             if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please attach a study file (TXT or JSON) first to generate smart exam questions.');
+                alert('Please attach a study document first.');
                 return;
             }
 
             const file = fileInput.files[0];
-            const reader = new FileReader();
+            const fileName = file.name.toLowerCase();
+            let parsedData = [];
 
-            reader.onload = function(e) {
-                try {
-                    const content = e.target.result;
-                    let parsedData = [];
-
-                    if (file.name.endsWith('.json')) {
-                        const json = JSON.parse(content);
-                        parsedData = json.flashcards || json.terms || json;
-                    } else {
-                        const lines = content.split('\n').filter(l => l.trim().length > 0);
-                        for (let i = 0; i < lines.length; i += 2) {
-                            parsedData.push({
-                                term: lines[i] ? lines[i].trim() : `Exam Concept ${i+1}`,
-                                definition: lines[i+1] ? lines[i+1].trim() : (lines[i] ? `Comprehensive analysis and application regarding: ${lines[i]}` : 'Detailed legal and structural context.')
-                            });
-                        }
-                    }
-
-                    const container = document.getElementById('terms-container');
-                    container.innerHTML = ''; // Clear existing empty rows
-
-                    let generatedCount = 0;
-                    while (generatedCount < targetCount) {
-                        const sourceItem = parsedData[generatedCount % parsedData.length];
-                        const variant = Math.floor(generatedCount / parsedData.length);
-                        
-                        let qText = sourceItem.front?.text || sourceItem.term || `Exam Question ${generatedCount + 1}`;
-                        let aText = sourceItem.back?.text || sourceItem.definition || `Detailed breakdown for concept ${generatedCount + 1}.`;
-
-                        if (variant > 0) {
-                            qText = `(Part ${variant + 1}) Analyze and explain: ${qText}`;
-                            aText = `Detailed legal/structural examination: ${aText}`;
-                        }
-
-                        addTermRow(qText, aText);
-                        generatedCount++;
-                    }
-
-                    alert(`Successfully generated ${generatedCount} rigorous exam-level questions!`);
-                } catch (err) {
-                    console.error('Parsing error:', err);
-                    alert('Error parsing file. Please ensure it is a valid text or JSON study document.');
+            try {
+                if (fileName.endsWith('.pdf')) {
+                    parsedData = await parsePDF(file);
+                } else if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
+                    parsedData = await parseDOCX(file);
+                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+                    parsedData = await parseExcel(file);
+                } else if (fileName.endsWith('.json')) {
+                    parsedData = await parseJSON(file);
+                } else {
+                    parsedData = await parseTXT(file);
                 }
-            };
 
-            reader.readAsText(file);
+                if (!parsedData || parsedData.length === 0) {
+                    alert('Could not extract readable text from this file.');
+                    return;
+                }
+
+                const container = document.getElementById('terms-container');
+                container.innerHTML = '';
+
+                let generatedCount = 0;
+                while (generatedCount < targetCount) {
+                    const sourceItem = parsedData[generatedCount % parsedData.length];
+                    const variant = Math.floor(generatedCount / parsedData.length);
+                    
+                    let qText = sourceItem.term;
+                    let aText = sourceItem.definition;
+
+                    if (variant > 0) {
+                        qText = `(Application ${variant + 1}) Analyze: ${qText}`;
+                        aText = `Detailed breakdown: ${aText}`;
+                    }
+
+                    addTermRow(qText, aText);
+                    generatedCount++;
+                }
+
+                alert(`Successfully generated ${generatedCount} exam-level questions from ${file.name}!`);
+            } catch (err) {
+                console.error('File parsing error:', err);
+                alert('Error processing file. Please ensure the file is not corrupted.');
+            }
+        }
+
+        // --- PARSERS FOR EACH FILE TYPE ---
+        async function parsePDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let extractedText = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
+            }
+            return textToCards(extractedText);
+        }
+
+        async function parseDOCX(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            return textToCards(result.value);
+        }
+
+        async function parseExcel(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            let combinedText = '';
+
+            workbook.SheetNames.forEach(sheetName => {
+                const sheet = workbook.Sheets[sheetName];
+                const csv = XLSX.utils.sheet_to_csv(sheet);
+                combinedText += csv + '\n';
+            });
+            return textToCards(combinedText);
+        }
+
+        async function parseJSON(file) {
+            const text = await file.text();
+            const json = JSON.parse(text);
+            const rawCards = json.flashcards || json.terms || json;
+            return rawCards.map(item => ({
+                term: item.front?.text || item.term || item.question || 'Concept',
+                definition: item.back?.text || item.definition || item.answer || 'Explanation.'
+            }));
+        }
+
+        async function parseTXT(file) {
+            const text = await file.text();
+            return textToCards(text);
+        }
+
+        // Helper to convert raw text blocks into Q&A pairs
+        function textToCards(text) {
+            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
+            let cards = [];
+            for (let i = 0; i < lines.length; i += 2) {
+                if (lines[i] && lines[i+1]) {
+                    cards.push({
+                        term: lines[i],
+                        definition: lines[i+1]
+                    });
+                }
+            }
+            if (cards.length === 0 && lines.length > 0) {
+                // Fallback if text doesn't alternate neatly
+                for (let i = 0; i < lines.length; i++) {
+                    cards.push({
+                        term: `Concept / Rule ${i+1}`,
+                        definition: lines[i]
+                    });
+                }
+            }
+            return cards;
         }
 
         function saveStudySet() {
