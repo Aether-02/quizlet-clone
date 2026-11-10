@@ -46,23 +46,23 @@
             left: 0;
             height: 100vh;
             padding: 1.5rem 1rem;
-            z-index: 1040;
+            z-index: 1050;
             transition: width 0.3s ease, transform 0.3s ease;
         }
 
-        /* Collapsed State for Desktop */
+        /* Desktop Collapsed State */
         body.sidebar-collapsed .sidebar {
             width: 80px;
         }
         body.sidebar-collapsed .sidebar .sidebar-text,
         body.sidebar-collapsed .sidebar .sidebar-heading {
-            display: none;
+            display: none !important;
         }
         body.sidebar-collapsed .sidebar .sidebar-brand span {
-            display: none;
+            display: none !important;
         }
         body.sidebar-collapsed .main-content {
-            margin-left: 80px;
+            margin-left: 80px !important;
         }
 
         .sidebar-brand {
@@ -75,6 +75,7 @@
             align-items: center;
             gap: 0.75rem;
             white-space: nowrap;
+            overflow: hidden;
         }
 
         .nav-link-custom {
@@ -88,6 +89,7 @@
             font-weight: 500;
             transition: all 0.2s ease;
             white-space: nowrap;
+            overflow: hidden;
         }
         .nav-link-custom:hover, .nav-link-custom.active {
             background-color: rgba(255, 181, 167, 0.3);
@@ -119,7 +121,7 @@
             border: 1px solid rgba(216, 164, 127, 0.3);
             border-radius: 2rem;
             padding: 0.5rem 1.25rem;
-            width: 400px;
+            width: 350px;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -136,17 +138,17 @@
 
         /* Menu Toggle Button */
         .btn-menu-toggle {
-            background: transparent;
-            border: none;
-            font-size: 1.3rem;
+            background: rgba(255, 181, 167, 0.2);
+            border: 1px solid rgba(216, 164, 127, 0.3);
+            font-size: 1.2rem;
             color: var(--text-main);
             cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
             transition: background 0.2s;
         }
         .btn-menu-toggle:hover {
-            background: rgba(255, 181, 167, 0.2);
+            background: rgba(255, 181, 167, 0.4);
         }
 
         /* Create Button & Dropdown Menu */
@@ -239,7 +241,7 @@
                 padding: 1.5rem 1rem;
             }
             .search-box {
-                width: 200px;
+                width: 180px;
             }
         }
     </style>
@@ -267,11 +269,11 @@
         <!-- Top Navigation Bar -->
         <div class="top-bar">
             <div class="d-flex align-items-center gap-3">
-                <!-- Sidebar Toggle Button (matches your video) -->
+                <!-- Working Menu Toggle Button -->
                 <button class="btn-menu-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="search-box d-none d-sm-flex">
+                <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
                     <input type="text" placeholder="Search for a study set or topic...">
                 </div>
@@ -374,10 +376,10 @@
 
         function toggleSidebar() {
             if (window.innerWidth <= 992) {
-                // Mobile: slide in/out
+                // Mobile view: slide sidebar in/out
                 document.body.classList.toggle('mobile-sidebar-open');
             } else {
-                // Desktop: collapse to icons
+                // Desktop view: collapse to icon-only bar
                 document.body.classList.toggle('sidebar-collapsed');
             }
         }
