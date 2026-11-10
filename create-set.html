@@ -148,9 +148,17 @@
                 <!-- Cards Editor Header -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="text-bright m-0">Flashcards</h5>
-                    <button type="button" class="btn btn-outline-light btn-sm rounded-0 px-3" onclick="addTermRow()">
-                        <i class="fa-solid fa-plus me-1"></i> Add Card
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-0 px-3" onclick="addTermRow()">
+                            <i class="fa-solid fa-plus me-1"></i> Add Card
+                        </button>
+                        <!-- Clear Button with SVG Icon Only -->
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-0 px-2 py-1" onclick="clearAllCards()" title="Clear All Cards">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5Zm4 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5Z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Terms Container -->
@@ -204,6 +212,14 @@
             container.appendChild(cardDiv);
         }
 
+        // Clear All Cards Function
+        function clearAllCards() {
+            if (confirm('Are you sure you want to clear all flashcards?')) {
+                const container = document.getElementById('terms-container');
+                container.innerHTML = '';
+            }
+        }
+
         // Smart Generator simulating advanced exam question parsing from uploaded files
         function generateSmartCards() {
             const fileInput = document.getElementById('study-file');
@@ -226,7 +242,6 @@
                         const json = JSON.parse(content);
                         parsedData = json.flashcards || json.terms || json;
                     } else {
-                        // Parse text file into smart conceptual chunks for exam-level questions
                         const lines = content.split('\n').filter(l => l.trim().length > 0);
                         for (let i = 0; i < lines.length; i += 2) {
                             parsedData.push({
@@ -239,7 +254,6 @@
                     const container = document.getElementById('terms-container');
                     container.innerHTML = ''; // Clear existing empty rows
 
-                    // Limit or expand to match user's requested count (up to 200)
                     let generatedCount = 0;
                     while (generatedCount < targetCount) {
                         const sourceItem = parsedData[generatedCount % parsedData.length];
