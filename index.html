@@ -10,6 +10,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Global Light Mode Styles & Script -->
+    <style>
+        /* Global Light Mode Overrides for All Pages */
+        body.light-mode {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.light-mode .glass-card,
+        body.light-mode .card-face,
+        body.light-mode .modal-content {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-mode .text-bright,
+        body.light-mode h1, body.light-mode h3, body.light-mode h5,
+        body.light-mode .card-text {
+            color: #0f172a !important;
+        }
+        body.light-mode .text-muted-bright {
+            color: #475569 !important;
+        }
+        body.light-mode .form-control {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.2) !important;
+        }
+    </style>
+    <script>
+        // Apply saved theme immediately on page load
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-mode');
+            });
+        }
+    </script>
+
     <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -48,13 +88,13 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            border-radius: 0.5rem; /* Square-ish modern look */
+            border-radius: 0.5rem;
         }
         .form-control, .form-control:focus {
             background-color: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #ffffff;
-            border-radius: 0.375rem; /* Square box input style */
+            border-radius: 0.375rem;
         }
         .form-control:focus {
             border-color: #6366f1;
@@ -70,7 +110,10 @@
             <a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
                 <i class="fa-solid fa-graduation-cap me-2 text-indigo"></i> StudyHub
             </a>
-            <div class="d-flex">
+            <div class="d-flex align-items-center gap-3">
+                <a href="settings.html" class="btn btn-outline-light btn-sm rounded-circle p-2" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
                 <a href="create-set.html" class="btn btn-primary-custom px-4 py-2 rounded-pill shadow-sm">
                     <i class="fa-solid fa-plus me-2"></i> Create Study Set
                 </a>
@@ -196,7 +239,6 @@
                 }
             };
 
-            // Open popup modal and fetch specific set terms
             window.openEditModal = function(setId) {
                 fetch(`backend/get_sets.php?id=${setId}`)
                     .then(res => res.json())

@@ -10,6 +10,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Global Light Mode Styles & Script -->
+    <style>
+        body.light-mode {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.light-mode .card-face {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08) !important;
+        }
+        body.light-mode .card-text,
+        body.light-mode .text-bright {
+            color: #0f172a !important;
+        }
+        body.light-mode .text-muted-bright {
+            color: #475569 !important;
+        }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-mode');
+            });
+        }
+    </script>
+
     <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -124,19 +154,19 @@
             <div class="flashcard-container" onclick="flipCard()">
                 <div id="flashcard-element" class="flashcard">
                     <!-- Front (Term) -->
-                    <div class="card-face back">
+                    <div class="card-face front">
                         <div class="d-flex justify-content-between text-muted-bright small text-uppercase fw-bold">
                             <span>Term</span>
-                            <span id="card-counter-back">1 / 1</span>
+                            <span id="card-counter-front">1 / 1</span>
                         </div>
                         <div id="card-term" class="card-text">Loading term...</div>
                         <div class="text-muted-bright small text-center">Click or press Spacebar to flip</div>
                     </div>
                     <!-- Back (Definition) -->
-                    <div class="card-face front">
+                    <div class="card-face back">
                         <div class="d-flex justify-content-between text-muted-bright small text-uppercase fw-bold">
                             <span>Definition</span>
-                            <span id="card-counter-front">1 / 1</span>
+                            <span id="card-counter-back">1 / 1</span>
                         </div>
                         <div id="card-definition" class="card-text">Loading definition...</div>
                         <div class="text-muted-bright small text-center">Click or press Spacebar to flip</div>

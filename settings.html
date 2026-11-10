@@ -74,7 +74,7 @@
                     <small class="text-muted">Switch between dark glassmorphism and clean light mode.</small>
                 </div>
                 <div class="btn-group" role="group" aria-label="Theme Toggle">
-                    <button type="button" id="dark-mode-btn" onclick="setTheme('dark')" class="btn btn-outline-light btn-sm px-3 active">
+                    <button type="button" id="dark-mode-btn" onclick="setTheme('dark')" class="btn btn-outline-light btn-sm px-3">
                         <i class="fa-solid fa-moon me-1"></i> Dark
                     </button>
                     <button type="button" id="light-mode-btn" onclick="setTheme('light')" class="btn btn-outline-light btn-sm px-3">
@@ -114,7 +114,6 @@
             }
         }
 
-        // Load saved theme on startup
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             setTheme(savedTheme);
