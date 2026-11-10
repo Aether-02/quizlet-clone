@@ -39,12 +39,8 @@
             background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
             color: white;
         }
-        .text-bright {
-            color: #ffffff !important;
-        }
-        .text-muted-bright {
-            color: #cbd5e1 !important;
-        }
+        .text-bright { color: #ffffff !important; }
+        .text-muted-bright { color: #cbd5e1 !important; }
     </style>
 </head>
 <body>
@@ -74,7 +70,7 @@
 
         <!-- Loading State / Error Alert -->
         <div id="loading-spinner" class="text-center py-5">
-            <div class="spinner-border text-indigo text-light" role="status">
+            <div class="spinner-border text-light" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
             <p class="text-muted-bright mt-3">Loading your study sets from the server...</p>
@@ -85,12 +81,10 @@
         </div>
 
         <!-- Study Sets Grid -->
-        <div id="sets-grid" class="row g-4">
-            <!-- Dynamically populated sets will appear here -->
-        </div>
+        <div id="sets-grid" class="row g-4"></div>
     </main>
 
-    <!-- JavaScript to Fetch, Render, Edit, and Delete Study Sets -->
+    <!-- JavaScript to Fetch and Render Study Sets -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const setsGrid = document.getElementById('sets-grid');
@@ -98,7 +92,6 @@
             const errorAlert = document.getElementById('error-alert');
 
             function loadSets() {
-                // FIXED: Now correctly calling get_sets.php (plural) to load all dashboard decks
                 fetch('backend/get_sets.php')
                     .then(response => response.json())
                     .then(data => {
@@ -152,7 +145,7 @@
                         <div class="glass-card p-4 d-flex flex-column justify-content-between h-100">
                             <div>
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="badge bg-indigo bg-opacity-25 text-indigo px-3 py-2 rounded-pill fw-semibold" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">
+                                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">
                                         ${set.term_count || 0} terms
                                     </span>
                                     <small class="text-muted-bright">${new Date(set.created_at).toLocaleDateString()}</small>
